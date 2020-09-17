@@ -50,11 +50,11 @@ export class AlphaController extends BaseElementController {
   }
 
   attach() {
-    this.$('range').addEventListener('input', this.handleInput);
+    this.$add('range', 'input', this.handleInput);
   }
 
   detach() {
-    this.$('range').removeEventListener('input', this.handleInput);
+    this.$remove('range', 'input', this.handleInput);
     super.detach();
   }
 

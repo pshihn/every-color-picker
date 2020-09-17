@@ -111,7 +111,7 @@ export class DinoColorPicker extends BaseElement {
       input[type=number] {
         -moz-appearance:textfield;
       }
-      label {display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;}
+      label {display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; user-select: none;}
       #colorTypeToggle {
         display: inline-flex;
         align-items: center;
@@ -235,20 +235,20 @@ export class DinoColorPicker extends BaseElement {
   connectedCallback() {
     const base = this.$('base2');
     this.rc = new RectangleController(base, [0.5, 0.5]);
-    base.addEventListener('p-input', this.handlePlaneInput);
+    this.$add(base, 'p-input', this.handlePlaneInput);
 
     const huePanel = this.$('huePanel');
     this.hueC = new HueController(huePanel);
-    huePanel.addEventListener('range-change', this.onHueChange);
+    this.$add(huePanel, 'range-change', this.onHueChange);
 
     const alphaPanel = this.$('alphaPanel');
     this.alphaC = new AlphaController(alphaPanel);
-    alphaPanel.addEventListener('range-change', this.onAlphaChange);
+    this.$add(alphaPanel, 'range-change', this.onAlphaChange);
 
-    this.$('rgba').addEventListener('change', this.onRGBinput);
-    this.$('hsla').addEventListener('change', this.onHSLInput);
-    this.$('hex').addEventListener('change', this.onHexInput);
-    this.$('colorTypeToggle').addEventListener('click', this.onColorTypeToggle);
+    this.$add('rgba', 'change', this.onRGBinput);
+    this.$add('hsla', 'change', this.onHSLInput);
+    this.$add('hex', 'change', this.onHexInput);
+    this.$add('colorTypeToggle', 'click', this.onColorTypeToggle);
 
     this.updateColorType();
     this.updateThumb();
@@ -273,14 +273,13 @@ export class DinoColorPicker extends BaseElement {
 
     const base = this.$('base2');
     if (base) {
-      base.removeEventListener('p-input', this.handlePlaneInput);
-      this.$('rgba').removeEventListener('change', this.onRGBinput);
-      this.$('hsla').removeEventListener('change', this.onHSLInput);
-      this.$('hex').removeEventListener('change', this.onHexInput);
-      this.$('colorTypeToggle').removeEventListener('click', this.onColorTypeToggle);
-
-      this.$('huePanel').addEventListener('range-change', this.onHueChange);
-      this.$('alphaPanel').addEventListener('range-change', this.onAlphaChange);
+      this.$remove(base, 'p-input', this.handlePlaneInput);
+      this.$remove('rgba', 'change', this.onRGBinput);
+      this.$remove('hsla', 'change', this.onHSLInput);
+      this.$remove('hex', 'change', this.onHexInput);
+      this.$remove('colorTypeToggle', 'click', this.onColorTypeToggle);
+      this.$remove('huePanel', 'range-change', this.onHueChange);
+      this.$remove('alphaPanel', 'range-change', this.onAlphaChange);
     }
     super.disconnectedCallback();
   }

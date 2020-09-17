@@ -1,3 +1,16 @@
+function _fire(src: HTMLElement, name: string, detail?: any, bubbles: boolean = true, composed: boolean = true) {
+  if (name) {
+    const init: any = {
+      bubbles: (typeof bubbles === 'boolean') ? bubbles : true,
+      composed: (typeof composed === 'boolean') ? composed : true
+    };
+    if (detail) {
+      init.detail = detail;
+    }
+    src.dispatchEvent(new CustomEvent(name, init));
+  }
+}
+
 export abstract class BaseElement extends HTMLElement {
   protected root: ShadowRoot;
   protected _nodes = new Map<string, HTMLElement>();
@@ -16,17 +29,24 @@ export abstract class BaseElement extends HTMLElement {
     return e;
   }
 
-  protected fire(name: string, detail?: any, bubbles: boolean = true, composed: boolean = true) {
-    if (name) {
-      const init: any = {
-        bubbles: (typeof bubbles === 'boolean') ? bubbles : true,
-        composed: (typeof composed === 'boolean') ? composed : true
-      };
-      if (detail) {
-        init.detail = detail;
-      }
-      this.dispatchEvent(new CustomEvent(name, init));
+  protected $add(target: string | HTMLElement, event: string, handler: (evt: Event | CustomEvent) => void) {
+    if (typeof target === 'string') {
+      target = this.$(target);
     }
+    if (!target) return;
+    target.addEventListener(event, handler);
+  }
+
+  protected $remove(target: string | HTMLElement, event: string, handler: (evt: Event | CustomEvent) => void) {
+    if (typeof target === 'string') {
+      target = this.$(target);
+    }
+    if (!target) return;
+    target.removeEventListener(event, handler);
+  }
+
+  protected fire(name: string, detail?: any, bubbles: boolean = true, composed: boolean = true) {
+    _fire(this, name, detail, bubbles, composed);
   }
 
   disconnectedCallback() {
@@ -53,20 +73,27 @@ export abstract class BaseElementController {
     return e;
   }
 
+  protected $add(target: string | HTMLElement, event: string, handler: (evt: Event | CustomEvent) => void) {
+    if (typeof target === 'string') {
+      target = this.$(target);
+    }
+    if (!target) return;
+    target.addEventListener(event, handler);
+  }
+
+  protected $remove(target: string | HTMLElement, event: string, handler: (evt: Event | CustomEvent) => void) {
+    if (typeof target === 'string') {
+      target = this.$(target);
+    }
+    if (!target) return;
+    target.removeEventListener(event, handler);
+  }
+
   detach() {
     this._nodes.clear();
   }
 
   protected fire(name: string, detail?: any, bubbles: boolean = true, composed: boolean = true) {
-    if (name) {
-      const init: any = {
-        bubbles: (typeof bubbles === 'boolean') ? bubbles : true,
-        composed: (typeof composed === 'boolean') ? composed : true
-      };
-      if (detail) {
-        init.detail = detail;
-      }
-      this.e.dispatchEvent(new CustomEvent(name, init));
-    }
+    _fire(this.e, name, detail, bubbles, composed);
   }
 }
