@@ -1,0 +1,68 @@
+export type Rect = [number, number, number, number];
+export type Point = [number, number];
+export type Color = [number, number, number, number];
+
+export const ALPHA_BG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAAAAABzHgM7AAAAF0lEQVR42mM4Awb/wYCBYg6EgghRzAEAWDWBGQVyKPMAAAAASUVORK5CYII=';
+
+export const STYLES = `
+* {box-sizing: border-box;}
+[hidden] {display: none !important;}
+[invisible] {visibility: hidden !important;}
+.horizontal {display: flex; flex-direction: row;}
+.vertical {display: flex; flex-direction: column;}
+.center {align-items: center;}
+.center-center {justify-content: center; align-items: center;}
+.spaced {justify-content: space-between;}
+.flex {flex: 1;}
+.wrap {flex-wrap: wrap;}
+`;
+
+export const RANGE_STYLE = `
+input[type=range] {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  -webkit-appearance: none;
+  background: transparent;
+  outline: none;
+  position: relative;
+  pointer-events: auto;
+}
+input[type=range]:focus {
+  outline: none;
+}
+input[type=range]::-ms-track {
+  width: 100%;
+  cursor: pointer;
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+input[type=range]::-moz-focus-outer {
+  outline: none;
+  border: 0;
+}
+input[type=range]::-moz-range-thumb {
+  border-radius: 50px;
+  background: var(--thumb-color, #ffffff);
+  cursor: pointer;
+  box-shadow: 0 0 4px -1px rgba(0,0,0,0.5);
+  border: 2px solid #fff;
+  margin: 0;
+  height: 20px;
+  width: 20px;
+  transform: translateY(-2px);
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border-radius: 50px;
+  background: var(--thumb-color, #ffffff);
+  cursor: pointer;
+  box-shadow: 0 0 4px -1px rgba(0,0,0,0.5);
+  border: 2px solid #fff;
+  height: 22px;
+  width: 22px;
+  margin: 0;
+  transform: translateY(-5px);
+}
+`;
