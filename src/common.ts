@@ -4,6 +4,9 @@ export type Color = [number, number, number, number];
 
 export const ALPHA_BG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAAAAABzHgM7AAAAF0lEQVR42mM4Awb/wYCBYg6EgghRzAEAWDWBGQVyKPMAAAAASUVORK5CYII=';
 
+export const SHADOW2 = '0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12)';
+export const SHADOW3 = '0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12)';
+
 export const STYLES = `
 * {box-sizing: border-box;}
 [hidden] {display: none !important;}

@@ -1,5 +1,16 @@
 import { Color } from './common';
 
+const REX_HSLA = /^hsla\s*\(\s*(\d+.?\d*)\s*,\s*(\d+.?\d*)%\s*,\s*(\d+.?\d*)%\s*,\s*(\d+.?\d*)\s*\)$/i;
+const REX_HSL = /^hsl\s*\(\s*(\d+.?\d*)\s*,\s*(\d+.?\d*)%\s*,\s*(\d+.?\d*)%\s*\)$/i;
+const REX_RGBA = /^rgba\s*\(\s*(\d+.?\d*)\s*,\s*(\d+.?\d*)\s*,\s*(\d+.?\d*)\s*,\s*(\d+.?\d*)\s*\)$/i;
+const REX_RGB = /^rgb\s*\(\s*(\d+.?\d*)\s*,\s*(\d+.?\d*)\s*,\s*(\d+.?\d*)\s*\)$/i;
+
+export interface AllColorTypes {
+  rgba: Color;
+  hsla: Color;
+  hex: string;
+}
+
 export const hslaString = (color: Color) => `hsla(${color[0] % 360}, ${color[1]}%, ${color[2]}%, ${color[3]})`;
 export const hslString = (color: Color) => `hsl(${color[0] % 360}, ${color[1]}%, ${color[2]}%)`;
 
@@ -74,36 +85,115 @@ export function rgbaToHex(rn: number, gn: number, bn: number, an: number): strin
   return (an === 255 ? `#${r}${g}${b}` : `#${r}${g}${b}${a}`).toUpperCase();
 }
 
-export function hexToRgba(hex: string): [number, number, number, number] | null {
+export function hexToRgba(hex: string): Color | null {
   switch (hex.length) {
     case 3:
       return [
         +`0x${hex[0]}${hex[0]}`,
         +`0x${hex[1]}${hex[1]}`,
         +`0x${hex[2]}${hex[2]}`,
-        255
+        1
       ];
     case 4:
       return [
         +`0x${hex[0]}${hex[0]}`,
         +`0x${hex[1]}${hex[1]}`,
         +`0x${hex[2]}${hex[2]}`,
-        +`0x${hex[3]}${hex[3]}`,
+        +`0x${hex[3]}${hex[3]}` / 255
       ];
     case 6:
       return [
         +`0x${hex[0]}${hex[1]}`,
         +`0x${hex[2]}${hex[3]}`,
         +`0x${hex[4]}${hex[5]}`,
-        255
+        1
       ];
     case 8:
       return [
         +`0x${hex[0]}${hex[1]}`,
         +`0x${hex[2]}${hex[3]}`,
         +`0x${hex[4]}${hex[5]}`,
-        +`0x${hex[6]}${hex[7]}`
+        +`0x${hex[6]}${hex[7]}` / 255
       ];
+  }
+  return null;
+}
+
+export function parseColor(value: string): AllColorTypes | null {
+  value = value.trim();
+  let matches = value.match(REX_HSLA);
+  if (matches) {
+    const h = +matches[1];
+    const s = +matches[2];
+    const l = +matches[3];
+    const a = +matches[4];
+    const [r, g, b] = hslToRgb(h, s, l);
+    const hex = rgbaToHex(r, g, b, a);
+    return {
+      hex,
+      hsla: [h, s, l, a],
+      rgba: [r, g, b, a]
+    };
+  }
+  matches = value.match(REX_HSL);
+  if (matches) {
+    const h = +matches[1];
+    const s = +matches[2];
+    const l = +matches[3];
+    const [r, g, b] = hslToRgb(h, s, l);
+    const hex = rgbaToHex(r, g, b, 1);
+    return {
+      hex,
+      hsla: [h, s, l, 1],
+      rgba: [r, g, b, 1]
+    };
+  }
+  matches = value.match(REX_RGBA);
+  if (matches) {
+    const r = +matches[1];
+    const g = +matches[2];
+    const b = +matches[3];
+    const a = +matches[4];
+    const [h, s, l] = rgbToHsl(r, g, b);
+    const hex = rgbaToHex(r, g, b, a);
+    return {
+      hex,
+      hsla: [h, s, l, a],
+      rgba: [r, g, b, a]
+    };
+  }
+  matches = value.match(REX_RGB);
+  if (matches) {
+    const r = +matches[1];
+    const g = +matches[2];
+    const b = +matches[3];
+    const [h, s, l] = rgbToHsl(r, g, b);
+    const hex = rgbaToHex(r, g, b, 1);
+    return {
+      hex,
+      hsla: [h, s, l, 1],
+      rgba: [r, g, b, 1]
+    };
+  }
+
+  let hex = value;
+  const lastIndex = hex.lastIndexOf('#');
+  if (lastIndex >= 0) {
+    hex = hex.substring(lastIndex + 1);
+  }
+  const rgba = hexToRgba(hex);
+  if (rgba) {
+    const [r, g, b, a] = rgba;
+    if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(a)) {
+      return null;
+    }
+    const [h, s, l] = rgbToHsl(r, g, b);
+    const hex = rgbaToHex(r, g, b, a);
+    return {
+      hex,
+      hsla: [h, s, l, a],
+      rgba: [r, g, b, a]
+    };
   }
   return null;
 }
