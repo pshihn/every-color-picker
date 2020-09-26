@@ -5,7 +5,7 @@ import { TriangleController } from './triangle-controller.js';
 
 const DIAL_WIDTH = 20;
 const WIDTH = 280;
-const INNER_WIDTH = 280 - (DIAL_WIDTH * 2) - 5;
+const INNER_WIDTH = WIDTH - (DIAL_WIDTH * 2) - 5;
 
 export class DialColorPicker extends BaseElement {
   private _hsla: Color = [0, 50, 50, 1];
@@ -29,7 +29,7 @@ export class DialColorPicker extends BaseElement {
       #base {
         position: relative;
       }
-      #thumbTrinagle,
+      #thumbTri,
       #thumbHue {
         position: absolute;
         width: 20px;
@@ -43,27 +43,30 @@ export class DialColorPicker extends BaseElement {
         left: -10px;
       }
       #satcan {
+        border-radius: 50%;
+        pointer-events: auto;
+      }
+      #tripanel {
         position: absolute;
         top: 0;
         left: 0;
+        right: 0;
+        bottom: 0;
+        display: grid;
+        place-items: center;
         pointer-events: none;
-      }
-      #disk {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: ${INNER_WIDTH}px;
-        height: ${INNER_WIDTH}px;
-        transform: translate3d(-50%, -50%, 0);
-        border-radius: 50%;
       }
     </style>
     <div id="base">
-      <canvas id="wheel" width="280" height="280"></canvas>
-      <canvas id="satcan" width="280" height="280"></canvas>
-      <div id="disk"></div>
+      <canvas id="wheel" width="${WIDTH}" height="${WIDTH}"></canvas>
       <div id="thumbHue"></div>
-      <div id="thumbTrinagle"></div>
+      <div id="tripanel">
+        <div style="position: relative;">
+          <canvas id="satcan" width="${INNER_WIDTH}" height="${INNER_WIDTH}"></canvas>
+          <div id="thumbTri"></div>
+        </div>
+      </div>
+      
     </div>
     `;
   }
@@ -78,8 +81,8 @@ export class DialColorPicker extends BaseElement {
     this.dialC = new DialController(wheel, ri / min, ro / min, this._hsla[0]);
     this.$add(wheel, 'p-input', this.handleDialInput);
 
-    const disk = this.$('disk');
-    this.triC = new TriangleController(disk, [[0, 0], [0, 0], [0, 0]], this._hsla[0], [0, 0]);
+    const disk = this.$<HTMLCanvasElement>('satcan');
+    this.triC = new TriangleController(disk, [[0, 0], [0, 0], [0, 0]], [0.5, 0.5]);
     this.$add(disk, 'p-input', this.handleTriangleInput);
 
     this.updateHueThumb();
@@ -135,15 +138,15 @@ export class DialColorPicker extends BaseElement {
 
   private renderTriangle() {
     const hue = this._hsla[0];
-    const c = WIDTH / 2;
-    const tr = c - DIAL_WIDTH - 5;
+    const c = INNER_WIDTH / 2;
+    const tr = c - 5;
 
     const angles = [0, 120, 240, 180];
     const points: Point[] = [];
     for (const angle of angles) {
       points.push([
-        Math.cos(degToRad(hue * 0 + angle)) * tr + c,
-        Math.sin(degToRad(hue * 0 + angle)) * tr + c
+        Math.cos(degToRad(hue * 1 + angle)) * tr + c,
+        Math.sin(degToRad(hue * 1 + angle)) * tr + c
       ]);
     }
     if (this.triC) {
@@ -177,9 +180,9 @@ export class DialColorPicker extends BaseElement {
 
   private updateColor() {
     const [hue, sat, lumin] = this._hsla;
-    if (this.dialC) {
+    if (this.dialC && this.triC) {
       this.dialC.angle = hue;
-      this.deferredUpdateHueThumb();
+      this.deferredUpdateThumbs();
     }
 
     this.renderTriangle();
@@ -199,15 +202,16 @@ export class DialColorPicker extends BaseElement {
   }
 
   private updateTriangleThumb() {
-    const t = this.$('thumbTrinagle');
+    const t = this.$('thumbTri');
     if (t && this.triC) {
       const position = this.triC.position;
-      t.style.transform = `translate3d(${position[0]}px, ${position[1]}px, 0)`;
+      const [x, y] = [INNER_WIDTH * position[0], INNER_WIDTH * position[1]];
+      t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
     }
   }
 
   private _uhtp = false;
-  private deferredUpdateHueThumb() {
+  private deferredUpdateThumbs() {
     if (!this._uhtp) {
       this._uhtp = true;
       requestAnimationFrame(() => {
@@ -223,15 +227,19 @@ export class DialColorPicker extends BaseElement {
   private handleDialInput = (event: Event) => {
     const hue = (event as CustomEvent).detail.angle;
     if (this._hsla[0] !== hue) {
+      const oldHue = this._hsla[0];
       this._hsla[0] = hue;
+      if (this.triC) {
+        this.triC.rotatePosition(hue - oldHue);
+      }
       this.updateColor();
       this._fire();
     }
   }
 
   private handleTriangleInput = (event: Event) => {
-    const position = (event as CustomEvent).detail.position;
-    console.log(position);
+    event.stopPropagation();
+    this.updateColor();
   }
 
   private _fire() {

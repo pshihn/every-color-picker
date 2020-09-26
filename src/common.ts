@@ -78,3 +78,10 @@ export function radToDeg(rad: number): number {
 export function degToRad(deg: number): number {
   return (Math.PI / 180) * deg;
 }
+
+export function rotate(x: number, y: number, cx: number, cy: number, angle: number): Point {
+  return [
+    (x - cx) * Math.cos(angle) - (y - cy) * Math.sin(angle) + cx,
+    (x - cx) * Math.sin(angle) + (y - cy) * Math.cos(angle) + cy,
+  ];
+}

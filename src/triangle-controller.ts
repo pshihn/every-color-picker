@@ -1,5 +1,5 @@
 import { PointerTrackerHandler, Pointer, InputEvent, PointerTracker } from './pointers.js';
-import { Point, Rect, Triangle } from './common.js';
+import { degToRad, Point, Rect, rotate, Triangle } from './common.js';
 
 export class TriangleController implements PointerTrackerHandler {
   private e: HTMLElement;
@@ -8,12 +8,10 @@ export class TriangleController implements PointerTrackerHandler {
 
   position: Point;
   triangle: Triangle;
-  rotation = 0;
 
-  constructor(node: HTMLElement, triangle: Triangle, rotation: number, position: Point) {
+  constructor(node: HTMLElement, triangle: Triangle, position: Point) {
     this.e = node;
     this.triangle = triangle;
-    this.rotation = rotation;
     this.position = position;
     this.tracker = new PointerTracker(this.e, this);
   }
@@ -36,9 +34,7 @@ export class TriangleController implements PointerTrackerHandler {
     const h = this.anchor[3];
     const newX = w ? ((pointer.clientX - this.anchor[0]) / w) : 0;
     const newY = h ? ((pointer.clientY - this.anchor[1]) / h) : 0;
-    console.log(newX, newY);
-    if (this.isInTriangle([newX, newY])) {
-      this.setPosition(newX, newY);
+    if (this.setPosition(newX, newY)) {
       this.e.style.cursor = 'pointer';
       return true;
     }
@@ -81,5 +77,9 @@ export class TriangleController implements PointerTrackerHandler {
       composed: true,
       detail: { position: this.position }
     }));
+  }
+
+  rotatePosition(angle: number) {
+    this.position = rotate(this.position[0], this.position[1], 0.5, 0.5, degToRad(angle));
   }
 }
