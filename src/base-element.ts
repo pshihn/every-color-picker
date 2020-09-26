@@ -29,7 +29,7 @@ export abstract class BaseElement extends HTMLElement {
     return e;
   }
 
-  protected $add(target: string | HTMLElement, event: string, handler: (evt: Event | CustomEvent) => void) {
+  protected $add(target: string | HTMLElement, event: string, handler: (evt: Event) => void) {
     if (typeof target === 'string') {
       target = this.$(target);
     }
@@ -37,7 +37,7 @@ export abstract class BaseElement extends HTMLElement {
     target.addEventListener(event, handler);
   }
 
-  protected $remove(target: string | HTMLElement, event: string, handler: (evt: Event | CustomEvent) => void) {
+  protected $remove(target: string | HTMLElement, event: string, handler: (evt: Event) => void) {
     if (typeof target === 'string') {
       target = this.$(target);
     }
@@ -73,7 +73,7 @@ export abstract class BaseElementController {
     return e;
   }
 
-  protected $add(target: string | HTMLElement, event: string, handler: (evt: Event | CustomEvent) => void) {
+  protected $add(target: string | HTMLElement, event: string, handler: (evt: Event) => void) {
     if (typeof target === 'string') {
       target = this.$(target);
     }
@@ -81,7 +81,7 @@ export abstract class BaseElementController {
     target.addEventListener(event, handler);
   }
 
-  protected $remove(target: string | HTMLElement, event: string, handler: (evt: Event | CustomEvent) => void) {
+  protected $remove(target: string | HTMLElement, event: string, handler: (evt: Event) => void) {
     if (typeof target === 'string') {
       target = this.$(target);
     }

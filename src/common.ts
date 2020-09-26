@@ -1,6 +1,7 @@
 export type Rect = [number, number, number, number];
 export type Point = [number, number];
 export type Color = [number, number, number, number];
+export type Triangle = [Point, Point, Point];
 
 export const ALPHA_BG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAAAAABzHgM7AAAAF0lEQVR42mM4Awb/wYCBYg6EgghRzAEAWDWBGQVyKPMAAAAASUVORK5CYII=';
 
@@ -69,3 +70,11 @@ input[type=range]::-webkit-slider-thumb {
   transform: translateY(-5px);
 }
 `;
+
+export function radToDeg(rad: number): number {
+  return (180 / Math.PI) * rad;
+}
+
+export function degToRad(deg: number): number {
+  return (Math.PI / 180) * deg;
+}
