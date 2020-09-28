@@ -1,9 +1,9 @@
 import { BaseElement } from './base-element.js';
-import { ALPHA_BG, STYLES, Color, SHADOW2, SHADOW3 } from './common.js';
+import { ALPHA_BG, STYLES, SHADOW2, SHADOW3 } from './common.js';
 import { HueController } from './hue-controller.js';
 import { RectangleController } from './rectangle-controller';
 import { AlphaController } from './alpha-controller.js';
-import { hslaString, hslString, hslToRgb, parseColor, rgbaToHex, rgbToHsl } from './colors.js';
+import { hslaString, hslString, hslToRgb, parseColor, rgbaToHex, rgbToHsl, Color } from './colors.js';
 
 const COLOR_TYPES = ['rgba', 'hsla', 'hex'];
 

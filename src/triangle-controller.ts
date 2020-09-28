@@ -1,5 +1,5 @@
 import { PointerTrackerHandler, Pointer, InputEvent, PointerTracker } from './pointers.js';
-import { degToRad, Point, Rect, rotate, Triangle } from './common.js';
+import { degToRad, Point, Rect, rotate, Triangle } from './math.js';
 
 export class TriangleController implements PointerTrackerHandler {
   private e: HTMLElement;

@@ -1,4 +1,4 @@
-import { Color } from './common';
+export type Color = [number, number, number, number];
 
 const REX_HSLA = /^hsla\s*\(\s*(\d+.?\d*)\s*,\s*(\d+.?\d*)%\s*,\s*(\d+.?\d*)%\s*,\s*(\d+.?\d*)\s*\)$/i;
 const REX_HSL = /^hsl\s*\(\s*(\d+.?\d*)\s*,\s*(\d+.?\d*)%\s*,\s*(\d+.?\d*)%\s*\)$/i;

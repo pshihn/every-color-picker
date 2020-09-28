@@ -1,5 +1,5 @@
 import { PointerTrackerHandler, Pointer, InputEvent, PointerTracker } from './pointers.js';
-import { radToDeg, Rect } from './common.js';
+import { radToDeg, Rect } from './math.js';
 
 export class DialController implements PointerTrackerHandler {
   private e: HTMLElement;

@@ -1,5 +1,5 @@
 import { PointerTrackerHandler, Pointer, InputEvent, PointerTracker } from './pointers.js';
-import { Rect, Point } from './common.js';
+import { Rect, Point } from './math.js';
 
 export class RectangleController implements PointerTrackerHandler {
   private e: HTMLElement;

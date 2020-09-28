@@ -1,5 +1,7 @@
 import { BaseElement } from './base-element.js';
-import { STYLES, Color, radToDeg, SHADOW2, degToRad, Point } from './common.js';
+import { STYLES, SHADOW2, } from './common.js';
+import { radToDeg, degToRad, Point, parseRotatedTriangle, lineValue, rotate } from './math.js';
+import { Color, hslToRgb, parseColor, rgbaToHex } from './colors.js';
 import { DialController } from './dial-controller.js';
 import { TriangleController } from './triangle-controller.js';
 
@@ -7,7 +9,7 @@ const DIAL_WIDTH = 20;
 const WIDTH = 280;
 const INNER_WIDTH = WIDTH - (DIAL_WIDTH * 2) - 5;
 
-export class DialColorPicker extends BaseElement {
+export class CorelColorPicker extends BaseElement {
   private _hsla: Color = [0, 50, 50, 1];
 
   private dialC?: DialController;
@@ -87,7 +89,7 @@ export class DialColorPicker extends BaseElement {
 
     this.updateHueThumb();
     this.updateTriangleThumb();
-    this.updateColor();
+    this.updateColor(true);
   }
 
   disconnectedCallback() {
@@ -178,14 +180,33 @@ export class DialColorPicker extends BaseElement {
     });
   }
 
-  private updateColor() {
+  private updateColor(updateTriangle: boolean) {
     const [hue, sat, lumin] = this._hsla;
-    if (this.dialC && this.triC) {
-      this.dialC.angle = hue;
-      this.deferredUpdateThumbs();
-    }
 
-    this.renderTriangle();
+    if (this.triC && updateTriangle) {
+      const trilines = parseRotatedTriangle(this.triC.triangle, hue, [INNER_WIDTH / 2, INNER_WIDTH / 2]);
+      // lumin
+      const Bx = trilines[1][0][0];
+      const Cx = trilines[1][1][0];
+      const mm = (Bx - Cx) / 100;
+      const Ox = (mm * lumin) + Cx;
+
+      // Sat
+      const ys = trilines.map<number>((line) => lineValue(line, Ox));
+      const satRangeMax = ys[1];
+      const satRangeMin = Math.max(ys[0], ys[2]);
+      const m = (satRangeMin - satRangeMax) / 100;
+      const Oy = m * sat + satRangeMax;
+
+      this.triC.position = [Ox / INNER_WIDTH, Oy / INNER_WIDTH];
+      this.triC.rotatePosition(hue + 90);
+    }
+    if (this.dialC) {
+      this.dialC.angle = hue;
+    }
+    if (this.dialC && this.triC) {
+      this.deferredRender();
+    }
   }
 
   private updateHueThumb() {
@@ -211,11 +232,12 @@ export class DialColorPicker extends BaseElement {
   }
 
   private _uhtp = false;
-  private deferredUpdateThumbs() {
+  private deferredRender() {
     if (!this._uhtp) {
       this._uhtp = true;
       requestAnimationFrame(() => {
         if (this._uhtp) {
+          this.renderTriangle();
           this.updateHueThumb();
           this.updateTriangleThumb();
           this._uhtp = false;
@@ -232,14 +254,33 @@ export class DialColorPicker extends BaseElement {
       if (this.triC) {
         this.triC.rotatePosition(hue - oldHue);
       }
-      this.updateColor();
+      this.updateColor(false);
       this._fire();
     }
   }
 
   private handleTriangleInput = (event: Event) => {
     event.stopPropagation();
-    this.updateColor();
+
+    const position = (event as CustomEvent).detail.position;
+    let [x, y] = [INNER_WIDTH * position[0], INNER_WIDTH * position[1]];
+    [x, y] = rotate(x, y, INNER_WIDTH / 2, INNER_WIDTH / 2, degToRad(-this._hsla[0] + 270));
+    const trilines = parseRotatedTriangle(this.triC!.triangle, this._hsla[0], [INNER_WIDTH / 2, INNER_WIDTH / 2]);
+    const ys = trilines.map<number>((line) => lineValue(line, x));
+    const satRangeMax = ys[1];
+    const satRangeMin = Math.max(ys[0], ys[2]);
+    const srM = 100 / (satRangeMin - satRangeMax);
+    const srC = -1 * srM * satRangeMax;
+    const sat = Math.max(0, Math.min(100, Math.round((srM * y) + srC)));
+
+    const mm = 100 / (trilines[1][0][0] - trilines[1][1][0]);
+    const cc = -1 * mm * trilines[1][1][0];
+    const lumin = Math.max(0, Math.min(100, Math.round((mm * x) + cc)));
+
+    this._hsla[1] = sat;
+    this._hsla[2] = lumin;
+    this.updateColor(false);
+    this._fire();
   }
 
   private _fire() {
@@ -249,6 +290,27 @@ export class DialColorPicker extends BaseElement {
   get hsl(): Color {
     return [...this._hsla];
   }
+
+  get rgb(): Color {
+    const [r, g, b] = hslToRgb(this._hsla[0], this._hsla[1], this._hsla[2]);
+    return [r, g, b, this._hsla[3]];
+  }
+
+  get hex(): string {
+    return rgbaToHex(...this.rgb);
+  }
+
+  get value(): string {
+    return this.hex;
+  }
+
+  set value(value: string) {
+    const colors = parseColor(value);
+    if (colors) {
+      this._hsla = [...colors.hsla];
+      this.updateColor(true);
+    }
+  }
 }
 
-customElements.define('color-picker-dial', DialColorPicker);
+customElements.define('color-picker-corel', CorelColorPicker);
