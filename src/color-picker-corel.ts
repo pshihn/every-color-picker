@@ -183,6 +183,8 @@ export class CorelColorPicker extends BaseElement {
   private updateColor(updateTriangle: boolean) {
     const [hue, sat, lumin] = this._hsla;
 
+    this.renderTriangle();
+
     if (this.triC && updateTriangle) {
       const trilines = parseRotatedTriangle(this.triC.triangle, hue, [INNER_WIDTH / 2, INNER_WIDTH / 2]);
       // lumin
@@ -237,7 +239,6 @@ export class CorelColorPicker extends BaseElement {
       this._uhtp = true;
       requestAnimationFrame(() => {
         if (this._uhtp) {
-          this.renderTriangle();
           this.updateHueThumb();
           this.updateTriangleThumb();
           this._uhtp = false;
