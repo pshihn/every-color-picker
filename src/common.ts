@@ -16,6 +16,8 @@ export const STYLES = `
 .wrap {flex-wrap: wrap;}
 `;
 
+export const LABEL_STYLE = `label {display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; user-select: none;}`;
+
 export const RANGE_STYLE = `
 input[type=range] {
   width: 100%;

@@ -1,7 +1,7 @@
 import { BaseElementController } from './base-element';
 import { RANGE_STYLE } from './common';
 
-export class HueController extends BaseElementController {
+export class GradientController extends BaseElementController {
   constructor(e: HTMLElement) {
     super(e);
     this.root.innerHTML = `
@@ -23,7 +23,7 @@ export class HueController extends BaseElementController {
         right: 0;
         pointer-events: none;
         border-radius: 12px;
-        background-image: linear-gradient(to right, hsl(0, 97%, 59%), hsl(60, 97%, 59%), hsl(120, 97%, 59%), hsl(180, 97%, 59%), hsl(240, 97%, 59%), hsl(300, 97%, 59%), hsl(0, 97%, 59%));
+        background-image: var(--gc-gradient, linear-gradient(to right, hsl(0, 97%, 59%), hsl(60, 97%, 59%), hsl(120, 97%, 59%), hsl(180, 97%, 59%), hsl(240, 97%, 59%), hsl(300, 97%, 59%), hsl(0, 97%, 59%)));
       }
     </style>
     <div id="container">
@@ -85,6 +85,14 @@ export class HueController extends BaseElementController {
         range.value = `${v}`;
       }
       this.updateThumbColor();
+    }
+  }
+
+  set gradient(value: string | null) {
+    if (value) {
+      this.e.style.setProperty('--gc-gradient', value);
+    } else {
+      this.e.style.removeProperty('--gc-gradient');
     }
   }
 }
