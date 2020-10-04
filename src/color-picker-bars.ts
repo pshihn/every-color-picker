@@ -2,7 +2,7 @@ import { BaseElement } from './base-element.js';
 import { STYLES, LABEL_STYLE } from './common.js';
 import { AlphaController } from './alpha-controller.js';
 import { GradientController } from './gradient-controller.js';
-import { Color, hslToRgb, rgbToHsl } from './colors.js';
+import { Color, hslToRgb, parseColor, rgbaToHex, rgbToHsl } from './colors.js';
 
 export type ColorMode = 'rgba' | 'hsla';
 
@@ -26,7 +26,7 @@ export class BarsColorPicker extends BaseElement {
         width: 224px;
         padding: 8px;
       }
-      .grid {
+      #grid {
         grid-gap: var(--bar-vertical-gap, 10px) 8px;
         display: grid;
         grid-template-columns: auto 1fr auto;
@@ -44,6 +44,7 @@ export class BarsColorPicker extends BaseElement {
         margin-bottom: 4px;
         font-family: inherit;
         width: 32px;
+        background: none;
       }
       input[type="number"]:focus {
         border-color: var(--focus-ring-color, #000);
@@ -57,19 +58,19 @@ export class BarsColorPicker extends BaseElement {
         -moz-appearance:textfield;
       }
     </style>
-    <div class="grid">
-      <label>H</label>
+    <div id="grid">
+      <label id="l1">H</label>
       <div id="p1"></div>
       <input id="in1" type="number">
-      <label>S</label>
+      <label  id="l2">S</label>
       <div id="p2"></div>
       <input id="in2" type="number">
-      <label>L</label>
+      <label id="l3">L</label>
       <div id="p3"></div>
       <input id="in3" type="number">
       <label>A</label>
       <div id="p4"></div>
-      <input id="in4" type="number">
+      <input id="in4" type="number" min="0" max="1" step="0.1">
     </div>
     `;
   }
@@ -84,8 +85,10 @@ export class BarsColorPicker extends BaseElement {
     const alphaPanel = this.$('p4');
     this.alphaC = new AlphaController(alphaPanel);
     this.$add(alphaPanel, 'range-change', this.onColorChange);
+    this.$add(this.$('grid'), 'change', this.onTextInputChange);
 
     this.mode = this._mode;
+    this.deferredUpdateUi();
   }
 
   disconnectedCallback() {
@@ -99,6 +102,7 @@ export class BarsColorPicker extends BaseElement {
       this.$remove(this.$('p4'), 'range-change', this.onColorChange);
       this.alphaC = undefined;
     }
+    this.$remove(this.$('grid'), 'change', this.onTextInputChange);
     super.disconnectedCallback();
   }
 
@@ -111,20 +115,43 @@ export class BarsColorPicker extends BaseElement {
           this.gcs[0].setMode('h', h);
           this.gcs[1].setMode('s', s);
           this.gcs[2].setMode('l', l);
+          ['H', 'S', 'L'].forEach((d, i) => this.$(`l${i + 1}`).textContent = d);
           break;
         case 'rgba':
           const [r, g, b] = this._rgba;
           this.gcs[0].setMode('r', r);
           this.gcs[1].setMode('g', g);
           this.gcs[2].setMode('b', b);
+          ['R', 'G', 'B'].forEach((d, i) => this.$(`l${i + 1}`).textContent = d);
           break;
       }
     }
   }
 
-  private onColorChange = () => this.handleColorChange();
+  private onTextInputChange = () => {
+    const color: Color = [
+      +this.$<HTMLInputElement>('in1').value,
+      +this.$<HTMLInputElement>('in2').value,
+      +this.$<HTMLInputElement>('in3').value,
+      +this.$<HTMLInputElement>('in4').value,
+    ];
+    switch (this._mode) {
+      case 'hsla':
+        this._hsla = color;
+        const [h, s, l, a] = this._hsla;
+        this._rgba = [...hslToRgb(h, s, l), a];
+        break;
+      case 'rgba':
+        this._rgba = color;
+        const [r, g, b, a2] = this._rgba;
+        this._hsla = [...rgbToHsl(r, g, b), a2];
+        break;
+    }
+    this.deferredUpdateUi();
+    this._fire();
+  }
 
-  private handleColorChange() {
+  private onColorChange = () => {
     if (this.gcs.length && this.alphaC) {
       switch (this._mode) {
         case 'hsla':
@@ -150,6 +177,7 @@ export class BarsColorPicker extends BaseElement {
       }
     }
     this.deferredUpdateUi();
+    this._fire();
   }
 
   private _deferred = false;
@@ -166,8 +194,10 @@ export class BarsColorPicker extends BaseElement {
                 this.gcs[1].value = s;
                 this.gcs[2].value = l;
                 this.alphaC.value = a;
-                this.gcs.forEach((gc) => gc.color = this._hsla);
-                this.alphaC.hsl = this._hsla;
+                this.gcs.forEach((gc, i) => {
+                  gc.color = this._hsla;
+                  this.$<HTMLInputElement>(`in${i + 1}`).value = `${gc.value}`;
+                });
                 break;
               }
               case 'rgba': {
@@ -176,16 +206,50 @@ export class BarsColorPicker extends BaseElement {
                 this.gcs[1].value = g;
                 this.gcs[2].value = b;
                 this.alphaC.value = a;
-                this.gcs.forEach((gc) => gc.color = this._rgba);
-                this.alphaC.hsl = this._hsla;
+                this.gcs.forEach((gc, i) => {
+                  gc.color = this._rgba;
+                  this.$<HTMLInputElement>(`in${i + 1}`).value = `${gc.value}`;
+                });
                 break;
               }
             }
+            this.alphaC.hsl = this._hsla;
+            this.$<HTMLInputElement>('in4').value = `${this.alphaC.value}`;
           }
         } finally {
           this._deferred = false;
         }
       });
+    }
+  }
+
+  private _fire() {
+    this.fire('change');
+  }
+
+  get hsl(): Color {
+    return [...this._hsla];
+  }
+
+  get rgb(): Color {
+    const [r, g, b] = hslToRgb(this._hsla[0], this._hsla[1], this._hsla[2]);
+    return [r, g, b, this._hsla[3]];
+  }
+
+  get hex(): string {
+    return rgbaToHex(...this.rgb);
+  }
+
+  get value(): string {
+    return this.hex;
+  }
+
+  set value(value: string) {
+    const colors = parseColor(value);
+    if (colors) {
+      this._hsla = [...colors.hsla];
+      this._rgba = [...colors.rgba];
+      this.deferredUpdateUi();
     }
   }
 }
