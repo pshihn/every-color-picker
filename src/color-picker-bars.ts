@@ -2,14 +2,14 @@ import { BaseElement } from './base-element.js';
 import { STYLES, LABEL_STYLE } from './common.js';
 import { AlphaController } from './alpha-controller.js';
 import { GradientController } from './gradient-controller.js';
-import { Color } from './colors.js';
+import { Color, hslToRgb, rgbToHsl } from './colors.js';
 
-export type COLOR_MODE = 'rgba' | 'hsla';
+export type ColorMode = 'rgba' | 'hsla';
 
 export class BarsColorPicker extends BaseElement {
   private _hsla: Color = [0, 100, 50, 1];
   private _rgba: Color = [255, 0, 0, 1];
-  private _mode: COLOR_MODE = 'hsla';
+  private _mode: ColorMode = 'hsla';
 
   private alphaC?: AlphaController;
   private gcs: GradientController[] = [];
@@ -27,7 +27,7 @@ export class BarsColorPicker extends BaseElement {
         padding: 8px;
       }
       .grid {
-        grid-gap: 8px;
+        grid-gap: var(--bar-vertical-gap, 10px) 8px;
         display: grid;
         grid-template-columns: auto 1fr auto;
         align-items: center;
@@ -78,14 +78,14 @@ export class BarsColorPicker extends BaseElement {
     this.gcs = [];
     for (let i = 0; i < 3; i++) {
       const p = this.$(`p${i + 1}`);
-      this.gcs.push(new GradientController(p));
+      this.gcs.push(new GradientController(p, 'h'));
       this.$add(p, 'range-change', this.onColorChange);
     }
     const alphaPanel = this.$('p4');
     this.alphaC = new AlphaController(alphaPanel);
     this.$add(alphaPanel, 'range-change', this.onColorChange);
 
-    this.updateColor();
+    this.mode = this._mode;
   }
 
   disconnectedCallback() {
@@ -96,35 +96,96 @@ export class BarsColorPicker extends BaseElement {
     this.gcs = [];
     if (this.alphaC) {
       this.alphaC.detach();
+      this.$remove(this.$('p4'), 'range-change', this.onColorChange);
       this.alphaC = undefined;
     }
     super.disconnectedCallback();
   }
 
-  private onColorChange() {
-  }
-
-  private updateColor() {
-    this.updateGradients();
-  }
-
-  private updateGradients() {
-    if (this.alphaC) {
-      this.alphaC.hsl = this._hsla;
-    }
-    if (this.gcs.length === 3) {
-      const [h, s, l] = this._hsla;
-      switch (this._mode) {
-        case 'hsla': {
-          this.gcs[0].gradient = `linear-gradient(to right, hsl(0, ${s}%, ${l}%), hsl(60, ${s}%, ${l}%), hsl(120, ${s}%, ${l}%), hsl(180, ${s}%, ${l}%), hsl(240, ${s}%, ${l}%), hsl(300, ${s}%, ${l}%), hsl(0, ${s}%, ${l}%))`;
-          this.gcs[1].gradient = `linear-gradient(to right, #000, #fff)`;
-          this.gcs[2].gradient = `linear-gradient(to right, #fff, #000)`;
+  set mode(value: ColorMode) {
+    this._mode = value;
+    if (this.gcs.length) {
+      switch (value) {
+        case 'hsla':
+          const [h, s, l] = this._hsla;
+          this.gcs[0].setMode('h', h);
+          this.gcs[1].setMode('s', s);
+          this.gcs[2].setMode('l', l);
           break;
-        }
-        case 'rgba': {
+        case 'rgba':
+          const [r, g, b] = this._rgba;
+          this.gcs[0].setMode('r', r);
+          this.gcs[1].setMode('g', g);
+          this.gcs[2].setMode('b', b);
           break;
-        }
       }
+    }
+  }
+
+  private onColorChange = () => this.handleColorChange();
+
+  private handleColorChange() {
+    if (this.gcs.length && this.alphaC) {
+      switch (this._mode) {
+        case 'hsla':
+          this._hsla = [
+            this.gcs[0].value,
+            this.gcs[1].value,
+            this.gcs[2].value,
+            this.alphaC.value
+          ];
+          const [h, s, l, a] = this._hsla;
+          this._rgba = [...hslToRgb(h, s, l), a];
+          break;
+        case 'rgba':
+          this._rgba = [
+            this.gcs[0].value,
+            this.gcs[1].value,
+            this.gcs[2].value,
+            this.alphaC.value
+          ];
+          const [r, g, b, a2] = this._rgba;
+          this._hsla = [...rgbToHsl(r, g, b), a2];
+          break;
+      }
+    }
+    this.deferredUpdateUi();
+  }
+
+  private _deferred = false;
+  private deferredUpdateUi() {
+    if (!this._deferred) {
+      this._deferred = true;
+      requestAnimationFrame(() => {
+        try {
+          if (this.gcs.length && this.alphaC) {
+            switch (this._mode) {
+              case 'hsla': {
+                const [h, s, l, a] = this._hsla;
+                this.gcs[0].value = h;
+                this.gcs[1].value = s;
+                this.gcs[2].value = l;
+                this.alphaC.value = a;
+                this.gcs.forEach((gc) => gc.color = this._hsla);
+                this.alphaC.hsl = this._hsla;
+                break;
+              }
+              case 'rgba': {
+                const [r, g, b, a] = this._rgba;
+                this.gcs[0].value = r;
+                this.gcs[1].value = g;
+                this.gcs[2].value = b;
+                this.alphaC.value = a;
+                this.gcs.forEach((gc) => gc.color = this._rgba);
+                this.alphaC.hsl = this._hsla;
+                break;
+              }
+            }
+          }
+        } finally {
+          this._deferred = false;
+        }
+      });
     }
   }
 }

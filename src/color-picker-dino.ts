@@ -237,7 +237,7 @@ export class DinoColorPicker extends BaseElement {
     this.$add(base, 'p-input', this.handlePlaneInput);
 
     const huePanel = this.$('huePanel');
-    this.hueC = new GradientController(huePanel);
+    this.hueC = new GradientController(huePanel, 'h');
     this.$add(huePanel, 'range-change', this.onHueChange);
 
     const alphaPanel = this.$('alphaPanel');
