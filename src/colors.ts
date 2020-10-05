@@ -42,6 +42,30 @@ export function hslToRgb(h: number, s: number, l: number): [number, number, numb
   ];
 }
 
+export function hsvToHsl(hsv: Color): Color {
+  const [h, s, v, a] = hsv;
+  const l = (2 - s / 100) * v / 2;
+  const den = (l < 50 ? l * 2 : 200 - l * 2);
+  const newS = den ? (s * v) / den : 0;
+  return [
+    h,
+    Math.round(newS),
+    Math.round(l),
+    a
+  ];
+}
+
+export function hslToHsv(hsl: Color): Color {
+  const [h, s, l, a] = hsl;
+  const t = s * (l < 50 ? l : 100 - l) / 100;
+  return [
+    h,
+    (l + t) ? (200 * t / (l + t)) : 0,
+    t + l,
+    a
+  ];
+}
+
 export function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
   r = r / 255, g = g / 255, b = b / 255;
   const cmax = Math.max(r, g, b);
