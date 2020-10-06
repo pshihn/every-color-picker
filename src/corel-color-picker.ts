@@ -314,4 +314,4 @@ export class CorelColorPicker extends BaseElement {
   }
 }
 
-customElements.define('color-picker-corel', CorelColorPicker);
+customElements.define('corel-color-picker', CorelColorPicker);

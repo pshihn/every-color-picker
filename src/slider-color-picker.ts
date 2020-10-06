@@ -6,7 +6,7 @@ import { Color, hslToRgb, parseColor, rgbaToHex, rgbToHsl } from './colors.js';
 
 export type ColorMode = 'rgba' | 'hsla';
 
-export class BarsColorPicker extends BaseElement {
+export class SliderColorPicker extends BaseElement {
   private _hsla: Color = [0, 100, 50, 1];
   private _rgba: Color = [255, 0, 0, 1];
   private _mode: ColorMode = 'hsla';
@@ -253,4 +253,4 @@ export class BarsColorPicker extends BaseElement {
     }
   }
 }
-customElements.define('color-picker-bars', BarsColorPicker);
+customElements.define('slider-color-picker', SliderColorPicker);

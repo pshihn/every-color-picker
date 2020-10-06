@@ -463,4 +463,4 @@ export class DinoColorPicker extends BaseElement {
   }
 }
 
-customElements.define('color-picker-dino', DinoColorPicker);
+customElements.define('dino-color-picker', DinoColorPicker);
