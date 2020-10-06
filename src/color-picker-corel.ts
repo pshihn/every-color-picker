@@ -2,7 +2,7 @@ import { BaseElement } from './base-element.js';
 import { STYLES, SHADOW2, } from './common.js';
 import { radToDeg, degToRad, Point, parseRotatedTriangle, lineValue, rotate } from './math.js';
 import { Color, hslToRgb, parseColor, rgbaToHex } from './colors.js';
-import { DialController } from './dial-controller.js';
+import { ArcController } from './arc-controller.js';
 import { TriangleController } from './triangle-controller.js';
 
 const DIAL_WIDTH = 20;
@@ -12,7 +12,7 @@ const INNER_WIDTH = WIDTH - (DIAL_WIDTH * 2) - 5;
 export class CorelColorPicker extends BaseElement {
   private _hsla: Color = [0, 50, 50, 1];
 
-  private dialC?: DialController;
+  private dialC?: ArcController;
   private triC?: TriangleController;
 
   constructor() {
@@ -80,7 +80,7 @@ export class CorelColorPicker extends BaseElement {
     const min = Math.min(width, height);
     const ro = (min / 2) - 2;
     const ri = ro - DIAL_WIDTH;
-    this.dialC = new DialController(wheel, ri / min, ro / min, this._hsla[0]);
+    this.dialC = new ArcController(wheel, ri / min, ro / min, 0, 359.99);
     this.$add(wheel, 'p-input', this.handleDialInput);
 
     const disk = this.$<HTMLCanvasElement>('satcan');
