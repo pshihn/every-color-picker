@@ -1,6 +1,6 @@
 import { ArcController } from './arc-controller.js';
 import { BaseElement } from './base-element.js';
-import { Color, hslString, hsvToHsl } from './colors.js';
+import { Color, hslString, hslToHsv, hslToRgb, hsvToHsl, parseColor, rgbaToHex } from './colors.js';
 import { STYLES, SHADOW2, } from './common.js';
 import { DiskController } from './disk-controller.js';
 import { degToRad } from './math.js';
@@ -275,6 +275,33 @@ export class DiskColorPicker extends BaseElement {
 
   private _fire() {
     this.fire('change');
+  }
+
+  get hsl(): Color {
+    return [...this._hsl];
+  }
+
+  get rgb(): Color {
+    const [r, g, b] = hslToRgb(this._hsl[0], this._hsl[1], this._hsl[2]);
+    return [r, g, b, this._hsl[3]];
+  }
+
+  get hex(): string {
+    return rgbaToHex(...this.rgb);
+  }
+
+  get value(): string {
+    return this.hex;
+  }
+
+  set value(value: string) {
+    const colors = parseColor(value);
+    if (colors) {
+      this._hsl = [...colors.hsla];
+      this._hsv = hslToHsv(this._hsl);
+      console.log(this._hsl, this._hsv);
+      this.updateColor();
+    }
   }
 }
 customElements.define('disk-color-picker', DiskColorPicker);
