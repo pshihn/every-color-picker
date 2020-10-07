@@ -1,5 +1,5 @@
 import { BaseElement } from './base-element.js';
-import { Color, hslaString, hslString, hsvToHsl, hsvToRgb, rgbaToHex, rgbString, rgbToHsv } from './colors.js';
+import { Color, hslaString, hslString, hsvToHsl, hsvToRgb, rgbaToHex, rgbString, rgbToHsv, parseColor, hslToHsv } from './colors.js';
 import { LABEL_STYLE, STYLES, SHADOW2, SHADOW3 } from './common.js';
 import { GradientController, GradientMode } from './gradient-controller.js';
 import { RectangleController } from './rectangle-controller.js';
@@ -168,6 +168,10 @@ export class ShopColorPicker extends BaseElement {
       this.setSelection((e.target as HTMLInputElement).dataset.value as GradientMode);
     }));
 
+    ['R', 'G', 'B'].forEach((d) => this.$add(`in${d}`, 'change', () => this.onRgbChange()));
+    ['H', 'S', 'V'].forEach((d) => this.$add(`in${d}`, 'change', () => this.onHsvChange()));
+    this.$add('inHex', 'change', () => this.onHexChange());
+
     this.setSelection('h', true);
   }
 
@@ -252,6 +256,29 @@ export class ShopColorPicker extends BaseElement {
     }
   }
 
+  private onRgbChange() {
+    this._rgb[0] = +this.$<HTMLInputElement>('inR').value;
+    this._rgb[1] = +this.$<HTMLInputElement>('inG').value;
+    this._rgb[2] = +this.$<HTMLInputElement>('inB').value;
+    this._hsv = rgbToHsv(this._rgb);
+    this.updateColor(true);
+    this._fire();
+  }
+
+  private onHsvChange() {
+    this._hsv[0] = +this.$<HTMLInputElement>('inH').value;
+    this._hsv[1] = +this.$<HTMLInputElement>('inS').value;
+    this._hsv[2] = +this.$<HTMLInputElement>('inV').value;
+    this._rgb = hsvToRgb(this._hsv);
+    this.updateColor(true);
+    this._fire();
+  }
+
+  private onHexChange() {
+    this.value = this.$<HTMLInputElement>('inHex').value.trim();
+    this._fire();
+  }
+
   private onPlanarInput = () => {
     const [px, py] = this.rc!.position;
     let hsvChanged = false;
@@ -289,7 +316,7 @@ export class ShopColorPicker extends BaseElement {
     } else {
       this._hsv = rgbToHsv(this._rgb);
     }
-    this.updateColor(true);
+    this.updateColor(false);
     this._fire();
   }
 
@@ -470,6 +497,36 @@ export class ShopColorPicker extends BaseElement {
 
   private _fire() {
     this.fire('change');
+  }
+
+  get rgb(): Color {
+    return [...this._rgb];
+  }
+
+  get hsl(): Color {
+    return hsvToHsl(this._hsv);
+  }
+
+  get hsb(): Color {
+    return [...this._hsv];
+  }
+
+  get hex(): string {
+    return this.value;
+  }
+
+  get value(): string {
+    return this._hex;
+  }
+
+  set value(value: string) {
+    const colors = parseColor(value);
+    if (colors) {
+      this._rgb = [...colors.rgba];
+      this._hsv = hslToHsv(colors.hsla);
+      this._hex = colors.hex;
+      this.updateColor(true);
+    }
   }
 }
 
