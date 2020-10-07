@@ -127,22 +127,22 @@ export class ShopColorPicker extends BaseElement {
       <div class="vertical">
         <div id="preview" class="flex"></div>
         <div id="inputGrid">
-          <input title="Hue" type="radio" name="bartype" id="rH" checked>
+          <input title="Hue" type="radio" name="bartype" id="rH" checked  data-value="h">
           <label title="Hue" for="rH">H</label>
           <input title="Hue" id="inH" type="number">
-          <input title="Saturation" type="radio" name="bartype" id="rS">
+          <input title="Saturation" type="radio" name="bartype" id="rS" data-value="s">
           <label title="Saturation" for="rS">S%</label>
           <input title="Saturation" id="inS" type="number">
-          <input title="Brightness" type="radio" name="bartype" id="rV">
+          <input title="Brightness" type="radio" name="bartype" id="rV"  data-value="v">
           <label title="Brightness" for="rV">B%</label>
           <input title="Brightness" id="inV" type="number">
-          <input title="Red" type="radio" name="bartype" id="rR">
+          <input title="Red" type="radio" name="bartype" id="rR"  data-value="r">
           <label title="Red" for="rR">R</label>
           <input title="Red" id="inR" type="number">
-          <input title="Green" type="radio" name="bartype" id="rG">
+          <input title="Green" type="radio" name="bartype" id="rG"  data-value="g">
           <label title="Green" for="rG">G</label>
           <input title="Green" id="inG" type="number">
-          <input title="Blue" type="radio" name="bartype" id="rB">
+          <input title="Blue" type="radio" name="bartype" id="rB"  data-value="b">
           <label title="Blue" for="rB">B</label>
           <input title="Blue" id="inB" type="number">
           <span></span>
@@ -163,10 +163,23 @@ export class ShopColorPicker extends BaseElement {
     this.gc = new GradientController(slider, this.mode);
     this.$add(slider, 'range-change', this.onGradientChange);
 
+    const radios = this.root.querySelectorAll('input[type=radio]');
+    radios.forEach((r) => r.addEventListener('change', (e) => {
+      this.setSelection((e.target as HTMLInputElement).dataset.value as GradientMode);
+    }));
+
     this.setSelection('h', true);
   }
 
   disconnectedCallback() {
+    if (this.rc) {
+      this.rc.detach();
+      this.rc = undefined;
+    }
+    if (this.gc) {
+      this.gc.detach();
+      this.gc = undefined;
+    }
     super.disconnectedCallback();
   }
 
@@ -240,7 +253,44 @@ export class ShopColorPicker extends BaseElement {
   }
 
   private onPlanarInput = () => {
-    // TODO:
+    const [px, py] = this.rc!.position;
+    let hsvChanged = false;
+    switch (this.mode) {
+      case 'h':
+        this._hsv[1] = Math.max(0, Math.min(100, Math.round(px * 100)));
+        this._hsv[2] = Math.max(0, Math.min(100, Math.round((1 - py) * 100)));
+        hsvChanged = true;
+        break;
+      case 's':
+        this._hsv[0] = Math.max(0, Math.min(360, Math.round(px * 360)));
+        this._hsv[2] = Math.max(0, Math.min(100, Math.round((1 - py) * 100)));
+        hsvChanged = true;
+        break;
+      case 'v':
+        this._hsv[0] = Math.max(0, Math.min(360, Math.round(px * 360)));
+        this._hsv[1] = Math.max(0, Math.min(100, Math.round((1 - py) * 100)));
+        hsvChanged = true;
+        break;
+      case 'r':
+        this._rgb[2] = Math.max(0, Math.min(255, Math.round(px * 255)));
+        this._rgb[1] = Math.max(0, Math.min(255, Math.round((1 - py) * 255)));
+        break;
+      case 'g':
+        this._rgb[2] = Math.max(0, Math.min(255, Math.round(px * 255)));
+        this._rgb[0] = Math.max(0, Math.min(255, Math.round((1 - py) * 255)));
+        break;
+      case 'b':
+        this._rgb[0] = Math.max(0, Math.min(255, Math.round(px * 255)));
+        this._rgb[1] = Math.max(0, Math.min(255, Math.round((1 - py) * 255)));
+        break;
+    }
+    if (hsvChanged) {
+      this._rgb = hsvToRgb(this._hsv);
+    } else {
+      this._hsv = rgbToHsv(this._rgb);
+    }
+    this.updateColor(true);
+    this._fire();
   }
 
   private onGradientChange = () => {

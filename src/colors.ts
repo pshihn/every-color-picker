@@ -61,8 +61,8 @@ export function hslToHsv(hsl: Color): Color {
   const t = s * (l < 50 ? l : 100 - l) / 100;
   return [
     h,
-    (l + t) ? (200 * t / (l + t)) : 0,
-    t + l,
+    Math.round((l + t) ? (200 * t / (l + t)) : 0),
+    Math.round(t + l),
     a
   ];
 }
