@@ -2,14 +2,14 @@ import { BaseElement } from './base-element.js';
 import { STYLES, LABEL_STYLE } from './common.js';
 import { AlphaController } from './alpha-controller.js';
 import { GradientController } from './gradient-controller.js';
-import { Color, hslToRgb, parseColor, rgbaToHex, rgbToHsl } from './colors.js';
+import { Color, hslToHsv, hsvToHsl, hsvToRgb, parseColor, rgbaToHex, rgbToHsv } from './colors.js';
 
-export type ColorMode = 'rgba' | 'hsla';
+export type ColorMode = 'rgba' | 'hsba';
 
 export class SliderColorPicker extends BaseElement {
-  private _hsla: Color = [0, 100, 50, 1];
+  private _hsva: Color = [0, 100, 100, 1];
   private _rgba: Color = [255, 0, 0, 1];
-  private _mode: ColorMode = 'hsla';
+  private _mode: ColorMode = 'hsba';
 
   private alphaC?: AlphaController;
   private gcs: GradientController[] = [];
@@ -65,7 +65,7 @@ export class SliderColorPicker extends BaseElement {
       <label  id="l2">S</label>
       <div id="p2"></div>
       <input id="in2" type="number">
-      <label id="l3">L</label>
+      <label id="l3">B</label>
       <div id="p3"></div>
       <input id="in3" type="number">
       <label>A</label>
@@ -110,12 +110,12 @@ export class SliderColorPicker extends BaseElement {
     this._mode = value;
     if (this.gcs.length) {
       switch (value) {
-        case 'hsla':
-          const [h, s, l] = this._hsla;
+        case 'hsba':
+          const [h, s, v] = this._hsva;
           this.gcs[0].setMode('h', h);
           this.gcs[1].setMode('s', s);
-          this.gcs[2].setMode('l', l);
-          ['H', 'S', 'L'].forEach((d, i) => this.$(`l${i + 1}`).textContent = d);
+          this.gcs[2].setMode('v', v);
+          ['H', 'S', 'B'].forEach((d, i) => this.$(`l${i + 1}`).textContent = d);
           break;
         case 'rgba':
           const [r, g, b] = this._rgba;
@@ -136,15 +136,13 @@ export class SliderColorPicker extends BaseElement {
       +this.$<HTMLInputElement>('in4').value,
     ];
     switch (this._mode) {
-      case 'hsla':
-        this._hsla = color;
-        const [h, s, l, a] = this._hsla;
-        this._rgba = [...hslToRgb(h, s, l), a];
+      case 'hsba':
+        this._hsva = color;
+        this._rgba = hsvToRgb(color);
         break;
       case 'rgba':
         this._rgba = color;
-        const [r, g, b, a2] = this._rgba;
-        this._hsla = [...rgbToHsl(r, g, b), a2];
+        this._hsva = rgbToHsv(color);
         break;
     }
     this.deferredUpdateUi();
@@ -154,15 +152,14 @@ export class SliderColorPicker extends BaseElement {
   private onColorChange = () => {
     if (this.gcs.length && this.alphaC) {
       switch (this._mode) {
-        case 'hsla':
-          this._hsla = [
+        case 'hsba':
+          this._hsva = [
             this.gcs[0].value,
             this.gcs[1].value,
             this.gcs[2].value,
             this.alphaC.value
           ];
-          const [h, s, l, a] = this._hsla;
-          this._rgba = [...hslToRgb(h, s, l), a];
+          this._rgba = hsvToRgb(this._hsva);
           break;
         case 'rgba':
           this._rgba = [
@@ -171,8 +168,7 @@ export class SliderColorPicker extends BaseElement {
             this.gcs[2].value,
             this.alphaC.value
           ];
-          const [r, g, b, a2] = this._rgba;
-          this._hsla = [...rgbToHsl(r, g, b), a2];
+          this._hsva = rgbToHsv(this._rgba);
           break;
       }
     }
@@ -188,14 +184,14 @@ export class SliderColorPicker extends BaseElement {
         try {
           if (this.gcs.length && this.alphaC) {
             switch (this._mode) {
-              case 'hsla': {
-                const [h, s, l, a] = this._hsla;
+              case 'hsba': {
+                const [h, s, v, a] = this._hsva;
                 this.gcs[0].value = h;
                 this.gcs[1].value = s;
-                this.gcs[2].value = l;
+                this.gcs[2].value = v;
                 this.alphaC.value = a;
                 this.gcs.forEach((gc, i) => {
-                  gc.color = this._hsla;
+                  gc.color = this._hsva;
                   this.$<HTMLInputElement>(`in${i + 1}`).value = `${gc.value}`;
                 });
                 break;
@@ -213,7 +209,7 @@ export class SliderColorPicker extends BaseElement {
                 break;
               }
             }
-            this.alphaC.hsl = this._hsla;
+            this.alphaC.hsl = hsvToHsl(this._hsva);
             this.$<HTMLInputElement>('in4').value = `${this.alphaC.value}`;
           }
         } finally {
@@ -228,12 +224,11 @@ export class SliderColorPicker extends BaseElement {
   }
 
   get hsl(): Color {
-    return [...this._hsla];
+    return hsvToHsl(this._hsva);
   }
 
   get rgb(): Color {
-    const [r, g, b] = hslToRgb(this._hsla[0], this._hsla[1], this._hsla[2]);
-    return [r, g, b, this._hsla[3]];
+    return [...this._rgba];
   }
 
   get hex(): string {
@@ -247,7 +242,7 @@ export class SliderColorPicker extends BaseElement {
   set value(value: string) {
     const colors = parseColor(value);
     if (colors) {
-      this._hsla = [...colors.hsla];
+      this._hsva = hslToHsv(colors.hsla);
       this._rgba = [...colors.rgba];
       this.deferredUpdateUi();
     }

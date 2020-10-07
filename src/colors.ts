@@ -13,6 +13,7 @@ export interface AllColorTypes {
 
 export const hslaString = (color: Color) => `hsla(${color[0] % 360}, ${color[1]}%, ${color[2]}%, ${color[3]})`;
 export const hslString = (color: Color) => `hsl(${color[0] % 360}, ${color[1]}%, ${color[2]}%)`;
+export const rgbString = (color: Color) => `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
 
 export function hslToRgb(h: number, s: number, l: number): [number, number, number] {
   h = h % 360;
@@ -141,6 +142,18 @@ export function hexToRgba(hex: string): Color | null {
       ];
   }
   return null;
+}
+
+export function hsvToRgb(hsv: Color): Color {
+  const [h, s, l, a] = hsvToHsl(hsv);
+  const [r, g, b] = hslToRgb(h, s, l);
+  return [r, g, b, a];
+}
+
+export function rgbToHsv(rgb: Color): Color {
+  const [r, g, b, a] = rgb;
+  const [h, s, l] = rgbToHsl(r, g, b);
+  return hslToHsv([h, s, l, a]);
 }
 
 export function parseColor(value: string): AllColorTypes | null {

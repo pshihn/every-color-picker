@@ -1,8 +1,8 @@
 import { BaseElementController } from './base-element';
-import { Color } from './colors';
+import { Color, hslString, hsvToHsl } from './colors';
 import { RANGE_STYLE } from './common';
 
-export type GradientMode = 'h' | 's' | 'l' | 'r' | 'g' | 'b';
+export type GradientMode = 'h' | 's' | 'v' | 'r' | 'g' | 'b';
 
 export class GradientController extends BaseElementController {
   private _mode: GradientMode = 'h';
@@ -85,7 +85,7 @@ export class GradientController extends BaseElementController {
           range.max = '360';
           break;
         case 's':
-        case 'l':
+        case 'v':
           range.max = '100';
           break;
         case 'r':
@@ -107,16 +107,23 @@ export class GradientController extends BaseElementController {
 
   private updateGradient() {
     let gradient = '';
+    const [h, s, b] = this._c;
     switch (this._mode) {
       case 'h':
-        gradient = `linear-gradient(to right, hsl(0, ${this._c[1]}%, ${this._c[2]}%), hsl(60, ${this._c[1]}%, ${this._c[2]}%), hsl(120, ${this._c[1]}%, ${this._c[2]}%), hsl(180, ${this._c[1]}%, ${this._c[2]}%), hsl(240, ${this._c[1]}%, ${this._c[2]}%), hsl(300, ${this._c[1]}%, ${this._c[2]}%), hsl(0, ${this._c[1]}%, ${this._c[2]}%))`;
+        gradient = `linear-gradient(to right, hsl(0, 100%, 50%), hsl(60, 100%, 50%), hsl(120, 100%, 50%), hsl(180, 100%, 50%), hsl(240, 100%, 50%), hsl(300, 100%, 50%), hsl(0, 100%, 50%))`;
         break;
-      case 's':
-        gradient = `linear-gradient(to right, hsl(${this._c[0]}, 0%, ${this._c[2]}%), hsl(${this._c[0]}, 100%, ${this._c[2]}%))`;
+      case 's': {
+        const c1 = hsvToHsl([h, 0, b, 1]);
+        const c2 = hsvToHsl([h, 100, b, 1]);
+        gradient = `linear-gradient(to right, ${hslString(c1)}, ${hslString(c2)})`;
         break;
-      case 'l':
-        gradient = `linear-gradient(to right, hsl(0, 0%, 0%), hsl(0, 0%, 100%))`;
+      }
+      case 'v': {
+        const c1 = hsvToHsl([h, s, 0, 1]);
+        const c2 = hsvToHsl([h, s, 100, 1]);
+        gradient = `linear-gradient(to right, ${hslString(c1)}, ${hslString(c2)})`;
         break;
+      }
       case 'r':
         gradient = `linear-gradient(to right, rgb(0, ${this._c[1]}, ${this._c[2]}), rgb(255, ${this._c[1]}, ${this._c[2]}))`;
         break;
@@ -144,13 +151,13 @@ export class GradientController extends BaseElementController {
       let color = '';
       switch (this._mode) {
         case 'h':
-          color = `hsl(${value}, ${this._c[1]}%, ${this._c[2]}%)`;
+          color = `hsl(${value}, 100%, 50%)`;
           break;
         case 's':
-          color = `hsl(${this._c[0]}, ${value}%, ${this._c[2]}%)`;
+          color = hslString(hsvToHsl([this._c[0], value, this._c[2], 1]));
           break;
-        case 'l':
-          color = `hsl(0, 0%, ${value}%)`;
+        case 'v':
+          color = hslString(hsvToHsl([this._c[0], this._c[1], value, 1]));
           break;
         case 'r':
           color = `rgb(${value}, ${this._c[1]}, ${this._c[2]})`;
