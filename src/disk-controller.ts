@@ -32,13 +32,6 @@ export class DiskController implements PointerTrackerHandler {
     return Math.max(0, Math.min(1, n));
   }
 
-  private isOnDisk(x: number, y: number): boolean {
-    const dx = x - 0.5;
-    const dy = y - 0.5;
-    const r = Math.sqrt((dx * dx) + (dy * dy));
-    return r <= (this.radius / this.anchor[2]);
-  }
-
   onMove(changedPointers: Pointer[]): void {
     const pointer = changedPointers[0];
     if (pointer) {
@@ -62,12 +55,9 @@ export class DiskController implements PointerTrackerHandler {
     const h = this.anchor[3];
     const newX = w ? ((pointer.clientX - this.anchor[0]) / w) : 0;
     const newY = h ? ((pointer.clientY - this.anchor[1]) / h) : 0;
-    if (this.isOnDisk(newX, newY)) {
-      this.setPosition(newX, newY);
-      this.e.style.cursor = 'pointer';
-      return true;
-    }
-    return false;
+    this.setPosition(newX, newY);
+    this.e.style.cursor = 'pointer';
+    return true;
   }
 
   private setPosition(newX: number, newY: number): boolean {

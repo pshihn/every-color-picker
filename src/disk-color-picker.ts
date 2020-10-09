@@ -1,6 +1,6 @@
 import { ArcController } from './arc-controller.js';
 import { BaseElement } from './base-element.js';
-import { Color, hslString, hslToHsv, hslToRgb, hsvToHsl, parseColor, rgbaToHex } from './colors.js';
+import { Color, hslString, hslToRgb, parseColor, rgbaToHex } from './colors.js';
 import { STYLES, SHADOW2, } from './common.js';
 import { DiskController } from './disk-controller.js';
 import { degToRad } from './math.js';
@@ -10,8 +10,7 @@ const WIDTH = 280;
 const INNER_WIDTH = WIDTH - (DIAL_WIDTH * 4);
 
 export class DiskColorPicker extends BaseElement {
-  private _hsv: Color = [0, 50, 100, 1];
-  private _hsl: Color = hsvToHsl(this._hsv);
+  private _hsla: Color = [0, 100, 50, 1];
 
   private dialC?: ArcController;
   private diskC?: DiskController;
@@ -54,18 +53,28 @@ export class DiskColorPicker extends BaseElement {
         border: 2px solid #ffffff;
         top: -10px;
         left: -10px;
+      }
+      #wheelThumb {
         pointer-events: none;
       }
-      #disk {
+      #diskThumb {
         pointer-events: auto;
+        cursor: pointer;
+      }
+      #disk {
         border-radius: 50%;
+      }
+      #diskTarget {
+        position: relative;
+        border-radius: 50%;
+        pointer-events: auto;
       }
     </style>
     <div id="base">
       <canvas id="wheel" width="${WIDTH}" height="${WIDTH}"></canvas>
       <div id="wheelThumb"></div>
       <div id="diskPanel">
-        <div style="position: relative;">
+        <div id="diskTarget">
           <canvas id="disk" width="${INNER_WIDTH}" height="${INNER_WIDTH}"></canvas>
           <div id="diskThumb"></div>
         </div>
@@ -83,7 +92,7 @@ export class DiskColorPicker extends BaseElement {
     this.dialC = new ArcController(wheel, ri / min, ro / min, 0, 180);
     this.$add(wheel, 'p-input', this.handleDialInput);
 
-    const disk = this.$<HTMLCanvasElement>('disk');
+    const disk = this.$<HTMLDivElement>('diskTarget');
     this.diskC = new DiskController(disk, INNER_WIDTH / 2, 0, 0);
     this.$add(disk, 'p-input', this.handleDiskInput);
 
@@ -104,15 +113,14 @@ export class DiskColorPicker extends BaseElement {
   }
 
   private updateColor() {
-    const [h, s, v] = this._hsv;
+    const [h, s, l] = this._hsla;
     if (this.diskC) {
       this.diskC.angle = h;
       this.diskC.distance = s / 100;
     }
     if (this.dialC) {
-      this.dialC.angle = (180 / 100) * v;
+      this.dialC.angle = (180 / 100) * l;
     }
-    this._hsl = hsvToHsl(this._hsv);
     this.deferredRender();
   }
 
@@ -138,30 +146,27 @@ export class DiskColorPicker extends BaseElement {
       const x = (r * Math.cos(degToRad(a))) + HW;
       const y = (r * Math.sin(degToRad(a))) + HW;
       t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      const [h, s] = this._hsv;
-      const color = hslString(hsvToHsl([h, s, 100, 1]));
-      t.style.background = color;
+      t.style.background = hslString(this._hsla);
     }
   }
 
   private updateWheelThumb() {
     const t = this.$('wheelThumb');
     if (t) {
-      const v = this._hsv[2];
-      const angle = (180 / 100) * v;
+      const l = this._hsla[2];
+      const angle = (180 / 100) * l;
       const wheel = this.$<HTMLCanvasElement>('wheel');
       const { width, height } = wheel;
       const radius = (Math.min(width, height) / 2) - (DIAL_WIDTH / 2) - 2.5;
       const x = (width / 2) + (radius * Math.cos(degToRad(angle)));
       const y = (height / 2) + (radius * Math.sin(degToRad(angle)));
       t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      const color = hslString(this._hsl);
-      t.style.background = color;
+      t.style.background = hslString(this._hsla);
     }
   }
 
   private renderWheel() {
-    const [h, s] = this._hsv;
+    const [h, s] = this._hsla;
     const [ph, ps] = this.prevWheelParams;
     if (h === ph && s === ps) {
       return;
@@ -191,8 +196,8 @@ export class DiskColorPicker extends BaseElement {
 
       const v1 = i * delta;
       const v2 = (i - 1) * delta;
-      const hsl1 = hsvToHsl([h, s, v1, 1]);
-      const hsl2 = hsvToHsl([h, s, v2, 1]);
+      const hsl1: Color = [h, s, v1, 1];
+      const hsl2: Color = [h, s, v2, 1];
 
       const g = ctx.createLinearGradient(x1, y1, x2, y2);
       g.addColorStop(0, hslString(hsl1));
@@ -260,15 +265,15 @@ export class DiskColorPicker extends BaseElement {
 
   private handleDialInput = (event: Event) => {
     const angle = (event as CustomEvent).detail.angle;
-    this._hsv[2] = (100 / 180) * angle;
+    this._hsla[2] = (100 / 180) * angle;
     this.updateColor();
     this._fire();
   }
 
   private handleDiskInput = (event: Event) => {
     const { angle, distance } = (event as CustomEvent).detail as { angle: number; distance: number };
-    this._hsv[0] = angle;
-    this._hsv[1] = Math.round(distance * 100);
+    this._hsla[0] = angle;
+    this._hsla[1] = Math.round(distance * 100);
     this.updateColor();
     this._fire();
   }
@@ -278,12 +283,12 @@ export class DiskColorPicker extends BaseElement {
   }
 
   get hsl(): Color {
-    return [...this._hsl];
+    return [...this._hsla];
   }
 
   get rgb(): Color {
-    const [r, g, b] = hslToRgb(this._hsl[0], this._hsl[1], this._hsl[2]);
-    return [r, g, b, this._hsl[3]];
+    const [r, g, b] = hslToRgb(this._hsla[0], this._hsla[1], this._hsla[2]);
+    return [r, g, b, this._hsla[3]];
   }
 
   get hex(): string {
@@ -297,9 +302,7 @@ export class DiskColorPicker extends BaseElement {
   set value(value: string) {
     const colors = parseColor(value);
     if (colors) {
-      this._hsl = [...colors.hsla];
-      this._hsv = hslToHsv(this._hsl);
-      console.log(this._hsl, this._hsv);
+      this._hsla = [...colors.hsla];
       this.updateColor();
     }
   }
