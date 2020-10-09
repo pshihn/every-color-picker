@@ -15,8 +15,8 @@ export class ArcController implements PointerTrackerHandler {
     this.e = node;
     this.ri = innerRadius;
     this.ro = outerRadius;
-    this.a1 = this.clamp(startAngle);
-    this.a2 = this.clamp(stopAngle);
+    this.a1 = startAngle;
+    this.a2 = stopAngle;
     this.tracker = new PointerTracker(this.e, this);
   }
 
@@ -27,13 +27,24 @@ export class ArcController implements PointerTrackerHandler {
     return Math.abs(n % 360);
   }
 
+  private isAngleInRange(angle: number): boolean {
+    if (this.a1 < 0) {
+      if (angle >= 0 && angle <= this.a2) {
+        return true;
+      }
+      const negAngle = angle - 360;
+      return (negAngle >= this.a1 && negAngle <= 0);
+    }
+    return ((angle >= this.a1) && (angle <= this.a2));
+  }
+
   private isOnDial(x: number, y: number): boolean {
     const dx = x - 0.5;
     const dy = y - 0.5;
     const r = Math.sqrt((dx * dx) + (dy * dy));
     if ((r >= this.ri) && (r <= this.ro)) {
       const alpha = this.clamp(Math.round(radToDeg(Math.atan2(dy, dx))));
-      return ((alpha >= this.a1) && (alpha <= this.a2));
+      return this.isAngleInRange(alpha);
     }
     return false;
   }
@@ -71,7 +82,7 @@ export class ArcController implements PointerTrackerHandler {
 
   private setPosition(newX: number, newY: number): boolean {
     const alpha = this.clamp(Math.round(radToDeg(Math.atan2(newY - 0.5, newX - 0.5))));
-    if ((alpha >= this.a1) && (alpha <= this.a2) && (alpha !== this.degrees)) {
+    if (this.isAngleInRange(alpha) && (alpha !== this.degrees)) {
       this.degrees = alpha;
       this.fire();
       return true;
