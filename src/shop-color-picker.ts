@@ -69,9 +69,9 @@ export class ShopColorPicker extends BaseElement {
         box-shadow: ${SHADOW2};
         background: transparent;
         border: 2px solid #ffffff;
-        pointer-events: none;
         top: -10px;
         left: -10px;
+        cursor: pointer;
       }
       #inputGrid {
         grid-gap: 6px;
@@ -118,8 +118,9 @@ export class ShopColorPicker extends BaseElement {
     <div class="horizontal">
       <div id="base">
         <div id="base1"></div>
-        <div id="base2"></div>
-        <div id="thumb"></div>
+        <div id="base2">
+          <div id="thumb"></div>
+        </div>
       </div>
       <div id="sliderPanel">
         <div id="slider"></div>

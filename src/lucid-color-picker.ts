@@ -30,6 +30,7 @@ export class LucidColorPicker extends BaseElement {
       #base {
         position: relative;
         background: hsl(var(--lucid-cp-hue, 0), 100%, 50%);
+        order: 1;
       }
       #thumb {
         position: absolute;
@@ -39,9 +40,9 @@ export class LucidColorPicker extends BaseElement {
         box-shadow: ${SHADOW2};
         background: var(--thumb-background, transparent);
         border: 2px solid #ffffff;
-        pointer-events: none;
         top: -10px;
         left: -10px;
+        cursor: pointer;
       }
       #base1,
       #base2 {
@@ -64,6 +65,7 @@ export class LucidColorPicker extends BaseElement {
         overflow: hidden;
         margin: 4px 0 0 4px;
         background-image: url(${ALPHA_BG});
+        order: 3;
       }
       #preview {
         position: absolute;
@@ -73,6 +75,7 @@ export class LucidColorPicker extends BaseElement {
         height: 100%;
       }
       #huePanel {
+        order: 2;
         overflow: hidden;
         width: 40px;
         position: relative;
@@ -83,6 +86,7 @@ export class LucidColorPicker extends BaseElement {
         position: relative;
         background-image: url(${ALPHA_BG});
         background-size: 12px 11px;
+        order: 3;
       }
       #alphaGradient {
         position: absolute;
@@ -139,13 +143,6 @@ export class LucidColorPicker extends BaseElement {
       }
     </style>
     <div id="grid">
-      <div id="base">
-        <div id="base1"></div>
-        <div id="base2"></div>
-      </div>
-      <div id="huePanel">
-        <input id="hue" type="range" min="0" max="360" value="0">
-      </div>
       <div id="alphaPanel">
         <div id="alphaGradient"></div>
         <input id="alpha" type="range" min="0" max="100" value="100">
@@ -153,7 +150,15 @@ export class LucidColorPicker extends BaseElement {
       <div id="previewPanel">
         <div id="preview"></div>
       </div>
-      <div id="thumb"></div>
+      <div id="huePanel">
+        <input id="hue" type="range" min="0" max="360" value="0">
+      </div>
+      <div id="base">
+        <div id="base1"></div>
+        <div id="base2">
+          <div id="thumb"></div>
+        </div>
+      </div>
     </div>
     `;
   }
