@@ -1,5 +1,5 @@
 import { PointerTrackerHandler, Pointer, InputEvent, PointerTracker } from './pointers.js';
-import { degToRad, Point, Rect, rotate, Triangle } from './math.js';
+import { degToRad, doIntersect, Point, Rect, rotate, Triangle, lineIntersection } from './math.js';
 
 export class TriangleController implements PointerTrackerHandler {
   private e: HTMLElement;
@@ -7,13 +7,27 @@ export class TriangleController implements PointerTrackerHandler {
   private tracker: PointerTracker;
 
   position: Point;
-  triangle: Triangle;
+  private _triangle: Triangle;
+  private _centroid: Point = [0, 0];
+
 
   constructor(node: HTMLElement, triangle: Triangle, position: Point) {
     this.e = node;
-    this.triangle = triangle;
+    this._triangle = triangle;
     this.position = position;
     this.tracker = new PointerTracker(this.e, this);
+  }
+
+  get triangle(): Triangle {
+    return this._triangle;
+  }
+
+  set triangle(value: Triangle) {
+    this._triangle = value;
+    this._centroid = [
+      (value[0][0] + value[1][0] + value[2][0]) / 3,
+      (value[0][1] + value[1][1] + value[2][1]) / 3
+    ];
   }
 
   isInTriangle(p: Point) {
@@ -34,7 +48,8 @@ export class TriangleController implements PointerTrackerHandler {
     const h = this.anchor[3];
     const newX = w ? ((pointer.clientX - this.anchor[0]) / w) : 0;
     const newY = h ? ((pointer.clientY - this.anchor[1]) / h) : 0;
-    if (this.setPosition(newX, newY)) {
+    if (this.isInTriangle([newX, newY])) {
+      this.setPosition(newX, newY, w, h);
       this.e.style.cursor = 'pointer';
       return true;
     }
@@ -48,7 +63,7 @@ export class TriangleController implements PointerTrackerHandler {
       const h = this.anchor[3];
       const newX = w ? ((pointer.clientX - this.anchor[0]) / w) : 0;
       const newY = h ? ((pointer.clientY - this.anchor[1]) / h) : 0;
-      this.setPosition(newX, newY);
+      this.setPosition(newX, newY, w, h);
     }
   }
 
@@ -56,12 +71,41 @@ export class TriangleController implements PointerTrackerHandler {
     this.e.style.cursor = '';
   }
 
-  private setPosition(newX: number, newY: number): boolean {
+  private setPosition(newX: number, newY: number, width: number, height: number): boolean {
     if (this.isInTriangle([newX, newY])) {
       if ((newX !== this.position[0]) && (newY !== this.position[1])) {
         this.position = [newX, newY];
         this.fire();
         return true;
+      }
+    } else {
+      const p: Point = [
+        newX * width,
+        newY * height
+      ];
+      const [A, B, C] = this._triangle;
+      let intersection: Point | null = null;
+      if (doIntersect(p, this._centroid, A, B)) {
+        intersection = lineIntersection(p, this._centroid, A, B);
+      }
+      if (!intersection) {
+        if (doIntersect(p, this._centroid, B, C)) {
+          intersection = lineIntersection(p, this._centroid, B, C);
+        }
+      }
+      if (!intersection) {
+        if (doIntersect(p, this._centroid, C, A)) {
+          intersection = lineIntersection(p, this._centroid, C, A);
+        }
+      }
+      if (intersection && width && height) {
+        const nx = intersection[0] / width;
+        const ny = intersection[1] / height;
+        if ((nx !== this.position[0]) && (ny !== this.position[1])) {
+          this.position = [nx, ny];
+          this.fire();
+          return true;
+        }
       }
     }
     return false;
