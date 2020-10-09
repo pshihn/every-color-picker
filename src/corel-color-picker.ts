@@ -1,7 +1,7 @@
 import { BaseElement } from './base-element.js';
 import { STYLES, SHADOW2, } from './common.js';
 import { radToDeg, degToRad, Point, parseRotatedTriangle, lineValue, rotate } from './math.js';
-import { Color, hslToRgb, parseColor, rgbaToHex } from './colors.js';
+import { Color, hslString, hslToRgb, parseColor, rgbaToHex } from './colors.js';
 import { ArcController } from './arc-controller.js';
 import { TriangleController } from './triangle-controller.js';
 
@@ -230,6 +230,7 @@ export class CorelColorPicker extends BaseElement {
       const position = this.triC.position;
       const [x, y] = [INNER_WIDTH * position[0], INNER_WIDTH * position[1]];
       t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      t.style.background = hslString(this._hsla);
     }
   }
 
