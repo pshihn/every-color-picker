@@ -190,6 +190,13 @@ export class AtomColorPicker extends BaseElement {
     const cx = width / 2;
     const cy = height / 2;
 
+    ctx.beginPath();
+    ctx.arc(cx, cy, ri, degToRad(100), degToRad(260));
+    ctx.arc(cx, cy, ro, degToRad(260), degToRad(100), true);
+    ctx.closePath();
+    ctx.strokeStyle = '#e5e5e5';
+    ctx.stroke();
+
     for (let i = 1; i <= n; i++) {
       const a = i * theta + degToRad(100);
       const b = (i - 1) * theta + degToRad(100);
@@ -235,6 +242,13 @@ export class AtomColorPicker extends BaseElement {
     const ri = ro - DIAL_WIDTH;
     const cx = width / 2;
     const cy = height / 2;
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, ri, degToRad(-80), degToRad(80));
+    ctx.arc(cx, cy, ro, degToRad(80), degToRad(-80), true);
+    ctx.closePath();
+    ctx.strokeStyle = '#e5e5e5';
+    ctx.stroke();
 
     for (let i = 1; i <= n; i++) {
       const a = i * theta + degToRad(-80);
