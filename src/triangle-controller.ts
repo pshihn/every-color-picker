@@ -1,5 +1,5 @@
 import { PointerTrackerHandler, Pointer, InputEvent, PointerTracker } from './pointers.js';
-import { degToRad, doIntersect, Point, Rect, rotate, Triangle, lineIntersection } from './math.js';
+import { degToRad, doIntersect, Point, Rect, rotate, Triangle, lineIntersection, distance } from './math.js';
 
 export class TriangleController implements PointerTrackerHandler {
   private e: HTMLElement;
@@ -48,7 +48,11 @@ export class TriangleController implements PointerTrackerHandler {
     const h = this.anchor[3];
     const newX = w ? ((pointer.clientX - this.anchor[0]) / w) : 0;
     const newY = h ? ((pointer.clientY - this.anchor[1]) / h) : 0;
-    if (this.isInTriangle([newX, newY])) {
+    let inTriangle = this.isInTriangle([newX, newY]);
+    if (!inTriangle) {
+      inTriangle = distance(this.position, [newX, newY]) < 0.05;
+    }
+    if (inTriangle) {
       this.setPosition(newX, newY, w, h);
       this.e.style.cursor = 'pointer';
       return true;
