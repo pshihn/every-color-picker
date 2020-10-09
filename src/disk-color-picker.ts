@@ -93,7 +93,7 @@ export class DiskColorPicker extends BaseElement {
     this.$add(wheel, 'p-input', this.handleDialInput);
 
     const disk = this.$<HTMLDivElement>('diskTarget');
-    this.diskC = new DiskController(disk, INNER_WIDTH / 2, 0, 0);
+    this.diskC = new DiskController(disk, 0, 0);
     this.$add(disk, 'p-input', this.handleDiskInput);
 
     this.renderDisk();

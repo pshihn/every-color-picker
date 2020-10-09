@@ -5,13 +5,11 @@ export class DiskController implements PointerTrackerHandler {
   private e: HTMLElement;
   private anchor: Rect = [0, 0, 0, 0];
   private tracker: PointerTracker;
-  private radius: number;
   private _a = 0;
   private _d = 0;
 
-  constructor(node: HTMLElement, diskRadius: number, angle: number, distance: number) {
+  constructor(node: HTMLElement, angle: number, distance: number) {
     this.e = node;
-    this.radius = diskRadius;
     if (angle) {
       this._a = this.clampAngle(angle);
     }
