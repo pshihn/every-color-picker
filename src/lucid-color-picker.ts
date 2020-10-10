@@ -3,7 +3,6 @@ import { Color, hslaString, hslString, hslToHsv, hsvToHsl, hsvToRgb, parseColor,
 import { STYLES, SHADOW2, ALPHA_BG } from './common.js';
 import { RectangleController } from './rectangle-controller.js';
 
-
 export class LucidColorPicker extends BaseElement {
   private _hsv: Color = [0, 100, 100, 1];
 

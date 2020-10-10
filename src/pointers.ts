@@ -41,28 +41,37 @@ export class PointerTracker {
     this._e = element;
     this._h = handler;
     if (self.PointerEvent) {
-      this._e.addEventListener('pointerdown', this.pointerStart);
+      this._add('pointerdown', this.pointerStart);
     } else {
-      this._e.addEventListener('mousedown', this.pointerStart);
-      this._e.addEventListener('touchstart', this.touchStart);
-      this._e.addEventListener('touchmove', this.move);
-      this._e.addEventListener('touchend', this.touchEnd);
-      this._e.addEventListener('touchcancel', this.touchEnd);
+      this._add('mousedown', this.pointerStart);
+      this._add('touchstart', this.touchStart);
+      this._add('touchmove', this.move);
+      this._add('touchend', this.touchEnd);
+      this._add('touchcancel', this.touchEnd);
     }
   }
 
   stop() {
-    this._e.removeEventListener('pointerdown', this.pointerStart);
-    this._e.removeEventListener('mousedown', this.pointerStart);
-    this._e.removeEventListener('touchstart', this.touchStart);
-    this._e.removeEventListener('touchmove', this.move);
-    this._e.removeEventListener('touchend', this.touchEnd);
-    this._e.removeEventListener('touchcancel', this.touchEnd);
-    this._e.removeEventListener('pointermove', this.move);
-    this._e.removeEventListener('pointerup', this.pointerEnd);
-    this._e.removeEventListener('pointercancel', this.pointerEnd);
-    window.removeEventListener('mousemove', this.move);
-    window.removeEventListener('mouseup', this.pointerEnd);
+    this._remove('pointerdown', this.pointerStart);
+    this._remove('mousedown', this.pointerStart);
+    this._remove('touchstart', this.touchStart);
+    this._remove('touchmove', this.move);
+    this._remove('touchend', this.touchEnd);
+    this._remove('touchcancel', this.touchEnd);
+    this._remove('pointermove', this.move);
+    this._remove('pointerup', this.pointerEnd);
+    this._remove('pointercancel', this.pointerEnd);
+
+    this._remove('mousemove', this.move, window);
+    this._remove('mouseup', this.pointerEnd, window);
+  }
+
+  private _add(name: string, callback: any, node?: EventTarget) {
+    (node || this._e).addEventListener(name, callback);
+  }
+
+  private _remove(name: string, callback: any, node?: EventTarget) {
+    (node || this._e).removeEventListener(name, callback);
   }
 
   private triggerPointerStart(pointer: Pointer, event: InputEvent): boolean {
@@ -78,12 +87,12 @@ export class PointerTracker {
     if (isPointerEvent(event)) {
       const capturingElement = (event.target && 'setPointerCapture' in event.target) ? event.target : this._e;
       capturingElement.setPointerCapture(event.pointerId);
-      this._e.addEventListener('pointermove', this.move);
-      this._e.addEventListener('pointerup', this.pointerEnd);
-      this._e.addEventListener('pointercancel', this.pointerEnd);
+      this._add('pointermove', this.move);
+      this._add('pointerup', this.pointerEnd);
+      this._add('pointercancel', this.pointerEnd);
     } else {
-      window.addEventListener('mousemove', this.move);
-      window.addEventListener('mouseup', this.pointerEnd);
+      this._add('mousemove', this.move, window);
+      this._add('mouseup', this.pointerEnd, window);
     }
   }
 
@@ -126,12 +135,12 @@ export class PointerTracker {
     if (!this.triggerPointerEnd(createPointer(event), event)) return;
     if (isPointerEvent(event)) {
       if (this.currentPointers.length) return;
-      this._e.removeEventListener('pointermove', this.move);
-      this._e.removeEventListener('pointerup', this.pointerEnd);
-      this._e.removeEventListener('pointercancel', this.pointerEnd);
+      this._remove('pointermove', this.move);
+      this._remove('pointerup', this.pointerEnd);
+      this._remove('pointercancel', this.pointerEnd);
     } else {
-      window.removeEventListener('mousemove', this.move);
-      window.removeEventListener('mouseup', this.pointerEnd);
+      this._remove('mousemove', this.move, window);
+      this._remove('mouseup', this.pointerEnd, window);
     }
   }
 
