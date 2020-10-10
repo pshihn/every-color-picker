@@ -3,3 +3,5 @@ bin
 lib
 dist
 demo
+packages/*/*.js
+packages/*/*.d.ts
