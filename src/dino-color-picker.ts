@@ -191,7 +191,7 @@ export class DinoColorPicker extends BaseElement {
             <label>B</label>
           </div>
           <div class="flex vertical center-center cell">
-            <input id="inputA" type="number" class="cellInput">
+            <input id="inputA" step="0.01" type="number" class="cellInput">
             <label>A</label>
           </div>
         </div>
@@ -209,7 +209,7 @@ export class DinoColorPicker extends BaseElement {
             <label>L(%)</label>
           </div>
           <div class="flex vertical center-center cell">
-            <input id="inputA2" type="number" class="cellInput">
+            <input id="inputA2" step="0.01" type="number" class="cellInput">
             <label>A</label>
           </div>
         </div>
