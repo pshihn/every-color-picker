@@ -48,7 +48,7 @@ export class AtomColorPicker extends BaseElement {
         right: 0;
         bottom: 0;
         display: grid;
-        place-items: center;
+        place-content: center;
         pointer-events: none;
       }
       #sArc, #lArc {
