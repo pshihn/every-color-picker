@@ -92,6 +92,7 @@ export class ShopColorPicker extends BaseElement {
         padding: 6px 4px;
         font-family: inherit;
         display: block;
+        margin: 0;
       }
       input::-webkit-outer-spin-button,
       input::-webkit-inner-spin-button {
