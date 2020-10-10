@@ -40,10 +40,9 @@ export class DinoColorPicker extends BaseElement {
         height: var(--thumb-size, 15px);
         border-radius: 50%;
         box-shadow: ${SHADOW2};
-        background: var(--thumb-background, transparent);
         border: var(--thumb-border, 2px solid #ffffff);
         transform: translate3d(-50%, -50%, 0);
-        pointer-events: none;
+        cursor: pointer;
       }
       #base1,
       #base2 {
@@ -162,8 +161,10 @@ export class DinoColorPicker extends BaseElement {
     </style>
     <div id="base">
       <div id="base1"></div>
-      <div id="base2"></div>
-      <div id="thumb"></div>
+      <div id="base2">
+        <div id="thumb"></div>
+      </div>
+      
     </div>
     <div id="sliderSection" class="horizontal center">
       <div id="colorPreviewPanel">
@@ -332,6 +333,7 @@ export class DinoColorPicker extends BaseElement {
       const p = this.rc.position;
       t.style.left = `${p[0] * 100}%`;
       t.style.top = `${p[1] * 100}%`;
+      t.style.background = hslString(this._hsla);
     }
   }
 
