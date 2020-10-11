@@ -1,6 +1,6 @@
 import { BaseElement } from './base-element.js';
 import { ALPHA_BG, STYLES, SHADOW2, SHADOW3, LABEL_STYLE } from './common.js';
-import { GradientController } from './gradient-controller.js';
+import { HueController } from './hue-controller.js';
 import { RectangleController } from './rectangle-controller';
 import { AlphaController } from './alpha-controller.js';
 import { hslaString, hslString, hslToRgb, parseColor, rgbaToHex, rgbToHsl, Color } from './colors.js';
@@ -14,7 +14,7 @@ export class DinoColorPicker extends BaseElement {
   private _hex = '#bf4040';
 
   private rc?: RectangleController;
-  private hueC?: GradientController;
+  private hueC?: HueController;
   private alphaC?: AlphaController;
 
   constructor() {
@@ -239,7 +239,7 @@ export class DinoColorPicker extends BaseElement {
     this.$add(base, 'p-input', this.handlePlaneInput);
 
     const huePanel = this.$('huePanel');
-    this.hueC = new GradientController(huePanel, 'h');
+    this.hueC = new HueController(huePanel);
     this.$add(huePanel, 'range', this.onHueChange);
 
     const alphaPanel = this.$('alphaPanel');
