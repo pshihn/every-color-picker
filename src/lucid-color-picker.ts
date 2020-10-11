@@ -121,18 +121,20 @@ export class LucidColorPicker extends BaseElement {
       input[type=range]::-moz-range-thumb {
         background: transparent;
         cursor: pointer;
-        border: 1px solid #fff;
-        height: 40px;
+        border: 2px solid #fff;
+        height: 10px;
         width: 10px;
+        border-radius: 50%;
         margin: 0;
       }
       input[type=range]::-webkit-slider-thumb {
         -webkit-appearance: none;
         background: transparent;
         cursor: pointer;
-        border: 1px solid #fff;
-        height: 40px;
+        border: 2px solid #fff;
+        height: 10px;
         width: 10px;
+        border-radius: 50%;
         margin: 0;
       }
     </style>
