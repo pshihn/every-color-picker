@@ -116,7 +116,7 @@ export class PointerTracker {
     this._h.onMove(trackedChangedPointers, event);
   }
 
-  private triggerPointerEnd = (pointer: Pointer, event: InputEvent): boolean => {
+  private _end = (pointer: Pointer, event: InputEvent): boolean => {
     const index = this.currentPointers.findIndex((p) => p.id === pointer.id);
     if (index === -1)
       return false;
@@ -130,7 +130,7 @@ export class PointerTracker {
   }
 
   private pointerEnd = (event: PointerEvent | MouseEvent) => {
-    if (!this.triggerPointerEnd(createPointer(event), event)) return;
+    if (!this._end(createPointer(event), event)) return;
     if (isPointerEvent(event)) {
       if (this.currentPointers.length) return;
       this.rel('pointermove', this.move);
@@ -144,7 +144,7 @@ export class PointerTracker {
 
   private touchEnd = (event: TouchEvent) => {
     for (const touch of Array.from(event.changedTouches)) {
-      this.triggerPointerEnd(createPointer(touch), event);
+      this._end(createPointer(touch), event);
     }
   }
 }
