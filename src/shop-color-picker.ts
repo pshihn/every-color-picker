@@ -163,7 +163,7 @@ export class ShopColorPicker extends BaseElement {
 
     const slider = this.$('slider');
     this.gc = new GradientController(slider, this.mode);
-    this.$add(slider, 'range-change', this.onGradientChange);
+    this.$add(slider, 'range', this.onGradientChange);
 
     const radios = this.root.querySelectorAll('input[type=radio]');
     radios.forEach((r) => r.addEventListener('change', (e) => {

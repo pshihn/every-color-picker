@@ -141,7 +141,7 @@ export class GradientController extends BaseElementController {
     event.stopPropagation();
     const value = +this.$<HTMLInputElement>('range').value;
     this.updateThumb();
-    this.fire('range-change', { value });
+    this.fire('range', { value });
   }
 
   private updateThumb() {

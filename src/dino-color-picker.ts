@@ -240,11 +240,11 @@ export class DinoColorPicker extends BaseElement {
 
     const huePanel = this.$('huePanel');
     this.hueC = new GradientController(huePanel, 'h');
-    this.$add(huePanel, 'range-change', this.onHueChange);
+    this.$add(huePanel, 'range', this.onHueChange);
 
     const alphaPanel = this.$('alphaPanel');
     this.alphaC = new AlphaController(alphaPanel);
-    this.$add(alphaPanel, 'range-change', this.onAlphaChange);
+    this.$add(alphaPanel, 'range', this.onAlphaChange);
 
     this.$add('rgba', 'change', this.onRGBinput);
     this.$add('hsla', 'change', this.onHSLInput);
@@ -279,8 +279,8 @@ export class DinoColorPicker extends BaseElement {
       this.$remove('hsla', 'change', this.onHSLInput);
       this.$remove('hex', 'change', this.onHexInput);
       this.$remove('colorTypeToggle', 'click', this.onColorTypeToggle);
-      this.$remove('huePanel', 'range-change', this.onHueChange);
-      this.$remove('alphaPanel', 'range-change', this.onAlphaChange);
+      this.$remove('huePanel', 'range', this.onHueChange);
+      this.$remove('alphaPanel', 'range', this.onAlphaChange);
     }
     super.disconnectedCallback();
   }

@@ -80,29 +80,26 @@ export class SliderColorPicker extends BaseElement {
     for (let i = 0; i < 3; i++) {
       const p = this.$(`p${i + 1}`);
       this.gcs.push(new GradientController(p, 'h'));
-      this.$add(p, 'range-change', this.onColorChange);
     }
     const alphaPanel = this.$('p4');
     this.alphaC = new AlphaController(alphaPanel);
-    this.$add(alphaPanel, 'range-change', this.onColorChange);
+
     this.$add('grid', 'change', this.onTextInputChange);
+    this.$add('grid', 'range', this.onColorChange);
 
     this.mode = this._mode;
     this.deferredUpdateUi();
   }
 
   disconnectedCallback() {
-    this.gcs.forEach((gc, i) => {
-      gc.detach();
-      this.$remove(this.$(`p${i + 1}`), 'range-change', this.onColorChange);
-    });
+    this.gcs.forEach((gc) => gc.detach());
     this.gcs = [];
     if (this.alphaC) {
       this.alphaC.detach();
-      this.$remove(this.$('p4'), 'range-change', this.onColorChange);
       this.alphaC = undefined;
     }
-    this.$remove(this.$('grid'), 'change', this.onTextInputChange);
+    this.$remove('grid', 'change', this.onTextInputChange);
+    this.$remove('grid', 'range', this.onColorChange);
     super.disconnectedCallback();
   }
 

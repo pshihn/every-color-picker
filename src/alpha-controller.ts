@@ -71,7 +71,7 @@ export class AlphaController extends BaseElementController {
 
   private handleInput = (event: Event) => {
     event.stopPropagation();
-    this.fire('range-change', { value: this.value });
+    this.fire('range', { value: this.value });
   }
 
   get value(): number {
