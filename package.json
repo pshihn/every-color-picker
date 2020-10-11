@@ -4,7 +4,7 @@
   "description": "All sorts of color pickers",
   "main": "index.js",
   "scripts": {
-    "build-all": "rm -rf bin && tsc && rollup -c",
+    "build": "rm -rf bin && tsc && rollup -c",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

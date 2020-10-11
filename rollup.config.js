@@ -9,7 +9,7 @@ const INPUTS = [
   'shop-color-picker',
   'atom-color-picker',
   'lucid-color-picker'
-]
+];
 
 export default INPUTS.map((input) => {
   return {
