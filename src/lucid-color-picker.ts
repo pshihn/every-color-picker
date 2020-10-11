@@ -5,8 +5,9 @@ import { RectangleController } from './rectangle-controller.js';
 
 export class LucidColorPicker extends BaseElement {
   private _hsv: Color = [0, 100, 100, 1];
-
   private rc?: RectangleController;
+
+  static get observedAttributes() { return ['value']; }
 
   constructor() {
     super();
@@ -160,6 +161,7 @@ export class LucidColorPicker extends BaseElement {
   }
 
   connectedCallback() {
+    console.log('connected calllback');
     const base = this.$('base2');
     this.rc = new RectangleController(base, [0.5, 0.5]);
     this.$add(base, 'p-input', this.onSLChange);
@@ -268,6 +270,13 @@ export class LucidColorPicker extends BaseElement {
     if (colors) {
       this._hsv = hslToHsv(colors.hsla);
       this.updateColor();
+    }
+  }
+
+  attributeChangedCallback(name: string, _: string, newValue: string) {
+    console.log('attr changed', name, newValue);
+    if (name === 'value') {
+      this.value = newValue;
     }
   }
 
