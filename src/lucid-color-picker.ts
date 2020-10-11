@@ -37,7 +37,6 @@ export class LucidColorPicker extends BaseElement {
         height: 20px;
         border-radius: 50%;
         box-shadow: ${SHADOW2};
-        background: var(--thumb-background, transparent);
         border: 2px solid #ffffff;
         top: -10px;
         left: -10px;
@@ -122,7 +121,7 @@ export class LucidColorPicker extends BaseElement {
         border: 0;
       }
       input[type=range]::-moz-range-thumb {
-        background: var(--thumb-color, transparent);
+        background: transparent;
         cursor: pointer;
         border: 1px solid #fff;
         height: 40px;
@@ -131,7 +130,7 @@ export class LucidColorPicker extends BaseElement {
       }
       input[type=range]::-webkit-slider-thumb {
         -webkit-appearance: none;
-        background: var(--thumb-color, transparent);
+        background: transparent;
         cursor: pointer;
         border: 1px solid #fff;
         height: 40px;
@@ -161,7 +160,6 @@ export class LucidColorPicker extends BaseElement {
   }
 
   connectedCallback() {
-    console.log('connected calllback');
     const base = this.$('base2');
     this.rc = new RectangleController(base, [0.5, 0.5]);
     this.$add(base, 'p-input', this.onSLChange);
@@ -240,10 +238,9 @@ export class LucidColorPicker extends BaseElement {
       const { width, height } = this.$('base2').getBoundingClientRect();
       const [x, y] = [width * p[0], height * p[1]];
       t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      this.style.setProperty('--thumb-background', hslString(hsvToHsl([h, s, v, 1])));
+      t.style.background = hslString(hsvToHsl([h, s, v, 1]));
     }
   }
-
 
   private _fire() {
     this.fire('change');
@@ -257,12 +254,8 @@ export class LucidColorPicker extends BaseElement {
     return hsvToRgb(this._hsv);
   }
 
-  get hex(): string {
-    return rgbaToHex(...this.rgb);
-  }
-
   get value(): string {
-    return this.hex;
+    return rgbaToHex(...this.rgb);
   }
 
   set value(value: string) {
@@ -274,7 +267,6 @@ export class LucidColorPicker extends BaseElement {
   }
 
   attributeChangedCallback(name: string, _: string, newValue: string) {
-    console.log('attr changed', name, newValue);
     if (name === 'value') {
       this.value = newValue;
     }
