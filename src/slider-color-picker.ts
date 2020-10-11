@@ -85,7 +85,7 @@ export class SliderColorPicker extends BaseElement {
     const alphaPanel = this.$('p4');
     this.alphaC = new AlphaController(alphaPanel);
     this.$add(alphaPanel, 'range-change', this.onColorChange);
-    this.$add(this.$('grid'), 'change', this.onTextInputChange);
+    this.$add('grid', 'change', this.onTextInputChange);
 
     this.mode = this._mode;
     this.deferredUpdateUi();

@@ -5,15 +5,10 @@ export const SHADOW3 = '0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.1
 
 export const STYLES = `
 * {box-sizing: border-box;}
-[hidden] {display: none !important;}
-[invisible] {visibility: hidden !important;}
 .horizontal {display: flex; flex-direction: row;}
 .vertical {display: flex; flex-direction: column;}
 .center {align-items: center;}
-.center-center {justify-content: center; align-items: center;}
-.spaced {justify-content: space-between;}
 .flex {flex: 1;}
-.wrap {flex-wrap: wrap;}
 `;
 
 export const LABEL_STYLE = `label {display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; user-select: none;}`;

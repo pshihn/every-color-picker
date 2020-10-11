@@ -23,6 +23,7 @@ export class DinoColorPicker extends BaseElement {
     <style>
       ${STYLES}
       ${LABEL_STYLE}
+      [hidden] {display: none !important;}
       :host {
         display: inline-block;
         touch-action: none;
@@ -178,43 +179,43 @@ export class DinoColorPicker extends BaseElement {
     <div id="textSection" class="horizontal center">
       <div class="flex">
         <div id="rgba" class="horizontal color-text-panel">
-          <div class="flex vertical center-center cell">
+          <div class="flex vertical cell">
             <input id="inputR" type="number" class="cellInput">
             <label>R</label>
           </div>
-          <div class="flex vertical center-center cell">
+          <div class="flex vertical cell">
             <input id="inputG" type="number" class="cellInput">
             <label>G</label>
           </div>
-          <div class="flex vertical center-center cell">
+          <div class="flex vertical cell">
             <input id="inputB" type="number" class="cellInput">
             <label>B</label>
           </div>
-          <div class="flex vertical center-center cell">
+          <div class="flex vertical cell">
             <input id="inputA" step="0.01" type="number" class="cellInput">
             <label>A</label>
           </div>
         </div>
         <div hidden id="hsla" class="horizontal">
-          <div class="flex vertical center-center cell">
+          <div class="flex vertical cell">
             <input id="inputH" type="number" class="cellInput">
             <label>H</label>
           </div>
-          <div class="flex vertical center-center cell">
+          <div class="flex vertical cell">
             <input id="inputS" type="number" class="cellInput">
             <label>S(%)</label>
           </div>
-          <div class="flex vertical center-center cell">
+          <div class="flex vertical cell">
             <input id="inputL" type="number" class="cellInput">
             <label>L(%)</label>
           </div>
-          <div class="flex vertical center-center cell">
+          <div class="flex vertical cell">
             <input id="inputA2" step="0.01" type="number" class="cellInput">
             <label>A</label>
           </div>
         </div>
         <div hidden id="hex" class="horizontal">
-          <div class="flex vertical center-center cell">
+          <div class="flex vertical cell">
             <input id="inputHex" class="cellInput">
             <label>HEX</label>
           </div>
