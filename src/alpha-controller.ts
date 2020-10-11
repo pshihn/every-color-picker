@@ -27,7 +27,7 @@ export class AlphaController extends BaseElementController {
         right: 0;
         pointer-events: none;
         border-radius: 12px;
-        background-image: linear-gradient(to right, var(--alpha-gradient-start, hsla(0, 100%, 50%, 0)), var(--alpha-gradient-stop, hsla(0, 100%, 50%, 1)));
+        background-image: linear-gradient(to right, var(--alpha-g1, hsla(0, 100%, 50%, 0)), var(--alpha-g2, hsla(0, 100%, 50%, 1)));
       }
       #checker {
         position: absolute;
@@ -60,13 +60,13 @@ export class AlphaController extends BaseElementController {
   }
 
   set hue(value: number) {
-    this.e.style.setProperty('--alpha-gradient-start', `hsla(${value}, 100%, 50%, 0)`);
-    this.e.style.setProperty('--alpha-gradient-stop', `hsla(${value}, 100%, 50%, 1)`);
+    this.e.style.setProperty('--alpha-g1', `hsla(${value}, 100%, 50%, 0)`);
+    this.e.style.setProperty('--alpha-g2', `hsla(${value}, 100%, 50%, 1)`);
   }
 
   set hsl(hsla: Color) {
-    this.e.style.setProperty('--alpha-gradient-start', `hsla(${hsla[0]}, ${hsla[1]}%, ${hsla[2]}%, 0)`);
-    this.e.style.setProperty('--alpha-gradient-stop', `hsla(${hsla[0]}, ${hsla[1]}%, ${hsla[2]}%, 1)`);
+    this.e.style.setProperty('--alpha-g1', `hsla(${hsla[0]}, ${hsla[1]}%, ${hsla[2]}%, 0)`);
+    this.e.style.setProperty('--alpha-g2', `hsla(${hsla[0]}, ${hsla[1]}%, ${hsla[2]}%, 1)`);
   }
 
   private handleInput = (event: Event) => {
