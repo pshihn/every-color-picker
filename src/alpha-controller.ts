@@ -84,15 +84,8 @@ export class AlphaController extends BaseElementController {
 
   set value(v: number) {
     const range = this.$<HTMLInputElement>('range');
-    const cv = this.value;
-    if (range && (cv !== v)) {
-      if (v < 0) {
-        range.value = '0';
-      } else if (v > 1) {
-        range.value = '100';
-      } else {
-        range.value = `${v * 100}`;
-      }
+    if (range) {
+      range.value = `${Math.max(0, Math.min(1, v)) * 100}`;
     }
   }
 }
