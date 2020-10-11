@@ -513,10 +513,6 @@ export class ShopColorPicker extends BaseElement {
     return [...this._hsv];
   }
 
-  get hex(): string {
-    return this.value;
-  }
-
   get value(): string {
     return this._hex;
   }

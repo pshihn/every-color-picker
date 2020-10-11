@@ -447,10 +447,6 @@ export class DinoColorPicker extends BaseElement {
     return [...this._hsla];
   }
 
-  get hex(): string {
-    return this.value;
-  }
-
   get value(): string {
     return this._hex;
   }

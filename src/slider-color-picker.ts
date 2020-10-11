@@ -148,23 +148,19 @@ export class SliderColorPicker extends BaseElement {
 
   private onColorChange = () => {
     if (this.gcs.length && this.alphaC) {
+      const color: Color = [
+        this.gcs[0].value,
+        this.gcs[1].value,
+        this.gcs[2].value,
+        this.alphaC.value
+      ];
       switch (this._mode) {
         case 'hsba':
-          this._hsva = [
-            this.gcs[0].value,
-            this.gcs[1].value,
-            this.gcs[2].value,
-            this.alphaC.value
-          ];
+          this._hsva = color;
           this._rgba = hsvToRgb(this._hsva);
           break;
         case 'rgba':
-          this._rgba = [
-            this.gcs[0].value,
-            this.gcs[1].value,
-            this.gcs[2].value,
-            this.alphaC.value
-          ];
+          this._rgba = color;
           this._hsva = rgbToHsv(this._rgba);
           break;
       }
@@ -228,12 +224,8 @@ export class SliderColorPicker extends BaseElement {
     return [...this._rgba];
   }
 
-  get hex(): string {
-    return rgbaToHex(...this.rgb);
-  }
-
   get value(): string {
-    return this.hex;
+    return rgbaToHex(...this.rgb);
   }
 
   set value(value: string) {

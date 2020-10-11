@@ -298,12 +298,8 @@ export class CorelColorPicker extends BaseElement {
     return [r, g, b, this._hsla[3]];
   }
 
-  get hex(): string {
-    return rgbaToHex(...this.rgb);
-  }
-
   get value(): string {
-    return this.hex;
+    return rgbaToHex(...this.rgb);
   }
 
   set value(value: string) {

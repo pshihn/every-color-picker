@@ -2,13 +2,13 @@ import { terser } from "rollup-plugin-terser";
 import filesize from 'rollup-plugin-filesize';
 
 const INPUTS = [
-  // 'dino-color-picker',
-  // 'corel-color-picker',
+  'dino-color-picker',
+  'corel-color-picker',
   'slider-color-picker',
-  // 'disk-color-picker',
-  // 'shop-color-picker',
-  // 'atom-color-picker',
-  // 'lucid-color-picker'
+  'disk-color-picker',
+  'shop-color-picker',
+  'atom-color-picker',
+  'lucid-color-picker'
 ];
 
 export default INPUTS.map((input) => {
