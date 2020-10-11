@@ -1,14 +1,10 @@
-function _fire(src: HTMLElement, name: string, detail?: any, bubbles: boolean = true, composed: boolean = true) {
-  if (name) {
-    const init: any = {
-      bubbles: (typeof bubbles === 'boolean') ? bubbles : true,
-      composed: (typeof composed === 'boolean') ? composed : true
-    };
-    if (detail) {
-      init.detail = detail;
-    }
-    src.dispatchEvent(new CustomEvent(name, init));
-  }
+function _fire(src: HTMLElement, name: string, detail?: any) {
+  const init: any = {
+    bubbles: true,
+    composed: true,
+    detail
+  };
+  src.dispatchEvent(new CustomEvent(name, init));
 }
 
 export abstract class BaseElement extends HTMLElement {
@@ -45,8 +41,8 @@ export abstract class BaseElement extends HTMLElement {
     target.removeEventListener(event, handler);
   }
 
-  protected fire(name: string, detail?: any, bubbles: boolean = true, composed: boolean = true) {
-    _fire(this, name, detail, bubbles, composed);
+  protected fire(name: string, detail?: any) {
+    _fire(this, name, detail);
   }
 
   disconnectedCallback() {
@@ -93,7 +89,7 @@ export abstract class BaseElementController {
     this._nodes.clear();
   }
 
-  protected fire(name: string, detail?: any, bubbles: boolean = true, composed: boolean = true) {
-    _fire(this.e, name, detail, bubbles, composed);
+  protected fire(name: string, detail?: any) {
+    _fire(this.e, name, detail);
   }
 }

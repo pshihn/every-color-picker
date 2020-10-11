@@ -37,30 +37,37 @@ export class PointerTracker {
   private startPointers: Pointer[] = [];
   private currentPointers: Pointer[] = [];
 
+  private ael(name: string, listener: any) {
+    this._e.addEventListener(name, listener);
+  }
+  private rel(name: string, listener: any) {
+    this._e.removeEventListener(name, listener);
+  }
+
   constructor(element: HTMLElement, handler: PointerTrackerHandler) {
     this._e = element;
     this._h = handler;
     if (self.PointerEvent) {
-      this._e.addEventListener('pointerdown', this.pointerStart);
+      this.ael('pointerdown', this.pointerStart);
     } else {
-      this._e.addEventListener('mousedown', this.pointerStart);
-      this._e.addEventListener('touchstart', this.touchStart);
-      this._e.addEventListener('touchmove', this.move);
-      this._e.addEventListener('touchend', this.touchEnd);
-      this._e.addEventListener('touchcancel', this.touchEnd);
+      this.ael('mousedown', this.pointerStart);
+      this.ael('touchstart', this.touchStart);
+      this.ael('touchmove', this.move);
+      this.ael('touchend', this.touchEnd);
+      this.ael('touchcancel', this.touchEnd);
     }
   }
 
   stop() {
-    this._e.removeEventListener('pointerdown', this.pointerStart);
-    this._e.removeEventListener('mousedown', this.pointerStart);
-    this._e.removeEventListener('touchstart', this.touchStart);
-    this._e.removeEventListener('touchmove', this.move);
-    this._e.removeEventListener('touchend', this.touchEnd);
-    this._e.removeEventListener('touchcancel', this.touchEnd);
-    this._e.removeEventListener('pointermove', this.move);
-    this._e.removeEventListener('pointerup', this.pointerEnd);
-    this._e.removeEventListener('pointercancel', this.pointerEnd);
+    this.rel('pointerdown', this.pointerStart);
+    this.rel('mousedown', this.pointerStart);
+    this.rel('touchstart', this.touchStart);
+    this.rel('touchmove', this.move);
+    this.rel('touchend', this.touchEnd);
+    this.rel('touchcancel', this.touchEnd);
+    this.rel('pointermove', this.move);
+    this.rel('pointerup', this.pointerEnd);
+    this.rel('pointercancel', this.pointerEnd);
     window.removeEventListener('mousemove', this.move);
     window.removeEventListener('mouseup', this.pointerEnd);
   }
@@ -78,9 +85,9 @@ export class PointerTracker {
     if (isPointerEvent(event)) {
       const capturingElement = (event.target && 'setPointerCapture' in event.target) ? event.target : this._e;
       capturingElement.setPointerCapture(event.pointerId);
-      this._e.addEventListener('pointermove', this.move);
-      this._e.addEventListener('pointerup', this.pointerEnd);
-      this._e.addEventListener('pointercancel', this.pointerEnd);
+      this.ael('pointermove', this.move);
+      this.ael('pointerup', this.pointerEnd);
+      this.ael('pointercancel', this.pointerEnd);
     } else {
       window.addEventListener('mousemove', this.move);
       window.addEventListener('mouseup', this.pointerEnd);
@@ -126,9 +133,9 @@ export class PointerTracker {
     if (!this.triggerPointerEnd(createPointer(event), event)) return;
     if (isPointerEvent(event)) {
       if (this.currentPointers.length) return;
-      this._e.removeEventListener('pointermove', this.move);
-      this._e.removeEventListener('pointerup', this.pointerEnd);
-      this._e.removeEventListener('pointercancel', this.pointerEnd);
+      this.rel('pointermove', this.move);
+      this.rel('pointerup', this.pointerEnd);
+      this.rel('pointercancel', this.pointerEnd);
     } else {
       window.removeEventListener('mousemove', this.move);
       window.removeEventListener('mouseup', this.pointerEnd);
