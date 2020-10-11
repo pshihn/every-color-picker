@@ -9,19 +9,28 @@ function _fire(src: HTMLElement, name: string, detail?: any) {
 
 export abstract class BaseElement extends HTMLElement {
   protected root: ShadowRoot;
-  protected _nodes = new Map<string, HTMLElement>();
+  protected __n = new Map<string, HTMLElement>();
+  abstract value: string;
 
   constructor() {
     super();
     this.root = this.attachShadow({ mode: 'open' });
   }
 
+  static get observedAttributes() { return ['value']; }
+
+  attributeChangedCallback(name: string, _: string, newValue: string) {
+    if (name === 'value') {
+      this.value = newValue;
+    }
+  }
+
   protected $<T extends HTMLElement>(id: string): T {
-    if (this._nodes.has(id)) {
-      return this._nodes.get(id) as T;
+    if (this.__n.has(id)) {
+      return this.__n.get(id) as T;
     }
     const e = this.root.querySelector<T>(`#${id}`)!;
-    this._nodes.set(id, e);
+    this.__n.set(id, e);
     return e;
   }
 
@@ -46,14 +55,14 @@ export abstract class BaseElement extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this._nodes.clear();
+    this.__n.clear();
   }
 }
 
 export abstract class BaseElementController {
   protected e: HTMLElement;
   protected root: ShadowRoot;
-  protected _nodes = new Map<string, HTMLElement>();
+  protected __n = new Map<string, HTMLElement>();
 
   constructor(e: HTMLElement) {
     this.e = e;
@@ -61,11 +70,11 @@ export abstract class BaseElementController {
   }
 
   protected $<T extends HTMLElement>(id: string): T {
-    if (this._nodes.has(id)) {
-      return this._nodes.get(id) as T;
+    if (this.__n.has(id)) {
+      return this.__n.get(id) as T;
     }
     const e = this.root.querySelector<T>(`#${id}`)!;
-    this._nodes.set(id, e);
+    this.__n.set(id, e);
     return e;
   }
 
@@ -86,7 +95,7 @@ export abstract class BaseElementController {
   }
 
   detach() {
-    this._nodes.clear();
+    this.__n.clear();
   }
 
   protected fire(name: string, detail?: any) {

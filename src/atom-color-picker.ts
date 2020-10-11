@@ -10,10 +10,7 @@ const INNNER_WIDTH = WIDTH - (DIAL_WIDTH * 6);
 
 export class AtomColorPicker extends BaseElement {
   private _hsla: Color = [0, 100, 50, 1];
-
-  private hArc?: ArcController;
-  private sArc?: ArcController;
-  private lArc?: ArcController;
+  private acs: ArcController[] = [];
 
   constructor() {
     super();
@@ -94,7 +91,7 @@ export class AtomColorPicker extends BaseElement {
       const wheel = this.$<HTMLCanvasElement>('wheel');
       const ro = (WIDTH / 2) - 2;
       const ri = ro - DIAL_WIDTH;
-      this.hArc = new ArcController(wheel, ri / WIDTH, ro / WIDTH, 0, 359.99);
+      this.acs[0] = new ArcController(wheel, ri / WIDTH, ro / WIDTH, 0, 359.99);
       this.$add(wheel, 'p-input', this.onHueChange);
     }
     {
@@ -102,7 +99,7 @@ export class AtomColorPicker extends BaseElement {
       const w = INNNER_WIDTH;
       const ro = (w / 2) - 2;
       const ri = ro - DIAL_WIDTH;
-      this.sArc = new ArcController(canvas, ri / w, ro / w, 100, 260);
+      this.acs[1] = new ArcController(canvas, ri / w, ro / w, 100, 260);
       this.$add(canvas, 'p-input', this.onSatChange);
     }
     {
@@ -110,7 +107,7 @@ export class AtomColorPicker extends BaseElement {
       const w = INNNER_WIDTH;
       const ro = (w / 2) - 2;
       const ri = ro - DIAL_WIDTH;
-      this.lArc = new ArcController(canvas, ri / w, ro / w, -80, 80);
+      this.acs[2] = new ArcController(canvas, ri / w, ro / w, -80, 80);
       this.$add(canvas, 'p-input', this.onLuminChange);
     }
 
@@ -119,18 +116,8 @@ export class AtomColorPicker extends BaseElement {
   }
 
   disconnectedCallback() {
-    if (this.hArc) {
-      this.hArc.detach();
-      this.hArc = undefined;
-    }
-    if (this.sArc) {
-      this.sArc.detach();
-      this.sArc = undefined;
-    }
-    if (this.lArc) {
-      this.lArc.detach();
-      this.lArc = undefined;
-    }
+    this.acs.forEach((ac) => ac.detach());
+    this.acs = [];
     super.disconnectedCallback();
   }
 

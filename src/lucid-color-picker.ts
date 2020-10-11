@@ -7,8 +7,6 @@ export class LucidColorPicker extends BaseElement {
   private _hsv: Color = [0, 100, 100, 1];
   private rc?: RectangleController;
 
-  static get observedAttributes() { return ['value']; }
-
   constructor() {
     super();
     this.root.innerHTML = `
@@ -163,8 +161,8 @@ export class LucidColorPicker extends BaseElement {
     const base = this.$('base2');
     this.rc = new RectangleController(base, [0.5, 0.5]);
     this.$add(base, 'p-input', this.onSLChange);
-    this.$add(this.$('hue'), 'input', this.onHueChange);
-    this.$add(this.$('alpha'), 'input', this.onAlphaChange);
+    this.$add('hue', 'input', this.onHueChange);
+    this.$add('alpha', 'input', this.onAlphaChange);
     this.updateColor();
   }
 
@@ -176,8 +174,8 @@ export class LucidColorPicker extends BaseElement {
     const base = this.$('base2');
     if (base) {
       this.$remove(base, 'p-input', this.onSLChange);
-      this.$remove(this.$('hue'), 'input', this.onHueChange);
-      this.$remove(this.$('alpha'), 'input', this.onAlphaChange);
+      this.$remove('hue', 'input', this.onHueChange);
+      this.$remove('alpha', 'input', this.onAlphaChange);
     }
     super.disconnectedCallback();
   }
@@ -265,12 +263,5 @@ export class LucidColorPicker extends BaseElement {
       this.updateColor();
     }
   }
-
-  attributeChangedCallback(name: string, _: string, newValue: string) {
-    if (name === 'value') {
-      this.value = newValue;
-    }
-  }
-
 }
 customElements.define('lucid-color-picker', LucidColorPicker);
