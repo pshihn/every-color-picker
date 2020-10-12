@@ -16,6 +16,7 @@ export const LABEL_STYLE = `label {display: block; font-size: 11px; text-transfo
 export const RANGE_STYLE = `
 input[type=range] {
   width: 100%;
+  height: 100%;
   box-sizing: border-box;
   margin: 0;
   -webkit-appearance: none;
@@ -23,6 +24,7 @@ input[type=range] {
   outline: none;
   position: relative;
   pointer-events: auto;
+  display: block;
 }
 input[type=range]:focus {
   outline: none;
@@ -47,7 +49,6 @@ input[type=range]::-moz-range-thumb {
   margin: 0;
   height: 20px;
   width: 20px;
-  transform: translateY(-5px);
 }
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -59,6 +60,5 @@ input[type=range]::-webkit-slider-thumb {
   height: 22px;
   width: 22px;
   margin: 0;
-  transform: translateY(-5px);
 }
 `;

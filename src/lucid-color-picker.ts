@@ -103,6 +103,7 @@ export class LucidColorPicker extends BaseElement {
         outline: none;
         position: relative;
         pointer-events: auto;
+        display: block;
       }
       input[type=range]:focus {
         outline: none;
