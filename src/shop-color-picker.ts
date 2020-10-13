@@ -215,7 +215,7 @@ export class ShopColorPicker extends BaseElement {
   private refreshCompactMode(): boolean {
     let ret = false;
     if (this.parentElement) {
-      const { width } = this.parentElement.getBoundingClientRect();
+      const width = Math.min(window.innerWidth, this.parentElement.getBoundingClientRect().width);
       const cm = width < 480;
       if (cm !== this._cm) {
         this._cm = cm;
