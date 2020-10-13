@@ -40,6 +40,7 @@ export class DiskColorPicker extends BaseElement {
         height: 100%;
         display: grid;
         place-items: center;
+        place-content: center;
         pointer-events: none;
       }
       #wheelThumb,
