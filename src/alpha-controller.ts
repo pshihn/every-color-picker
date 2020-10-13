@@ -44,7 +44,7 @@ export class AlphaController extends BaseElementController {
     <div id="container">
       <div id="checker"></div>
       <div id="gradient" style=""></div>
-      <input id="range" type="range" min="0" max="100" value="100">
+      <input id="range" type="range" min="0" max="100" value="100" aria-label="Alpha">
     </div>
     `;
     this.attach();

@@ -29,7 +29,7 @@ export class HueController extends BaseElementController {
     </style>
     <div id="container">
       <div id="gradient"></div>
-      <input id="range" type="range" min="0" max="360" value="0">
+      <input id="range" type="range" min="0" max="360" value="0" aria-label="Hue">
     </div>
     `;
     this.attach();

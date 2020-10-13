@@ -94,6 +94,7 @@ export class GradientController extends BaseElementController {
           range.max = '255';
           break;
       }
+      range.setAttribute('aria-label', `${mode} value`);
       this.updateGradient();
     }
     this.value = value;
