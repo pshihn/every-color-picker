@@ -153,6 +153,9 @@ export class DinoColorPicker extends BaseElement {
       #alphaPanel{
         margin-top: 18px;
       }
+      label {
+        text-align: center;
+      }
 
       @media(hover:hover) {
         #colorTypeToggle:hover::before {
