@@ -4,7 +4,6 @@ import { LABEL_STYLE, STYLES, SHADOW2, SHADOW3 } from './common.js';
 import { GradientController, GradientMode } from './gradient-controller.js';
 import { RectangleController } from './rectangle-controller.js';
 
-const SIZE = 280;
 const BGS = '--shop-base-gradient';
 
 function createVertGradient(from: string, to: string): string {
@@ -28,6 +27,7 @@ export class ShopColorPicker extends BaseElement {
   private _hex = '#ff0000';
   private mode: GradientMode = 'h';
   private selectedInput?: HTMLInputElement;
+  private _cm = false;
 
   private gc?: GradientController;
   private rc?: RectangleController;
@@ -47,8 +47,8 @@ export class ShopColorPicker extends BaseElement {
       }
       #base {
         position: relative;
-        width: ${SIZE}px;
-        height: ${SIZE}px;
+        width: var(--shop-cp-size, 280px);
+        height: var(--shop-cp-size, 280px);
         background: var(${BGS});
       }
       #base1,
@@ -113,10 +113,31 @@ export class ShopColorPicker extends BaseElement {
       }
       #slider {
         transform: translate3d(-129px,134px,0) rotate(-90deg);
-        width: ${SIZE}px;
+        width: var(--shop-cp-size, 280px);
+      }
+      #container {
+        display: flex;
+        flex-direction: row;
+      }
+
+      #container.compact {
+        flex-direction: column;
+      }
+      .compact #sliderPanel {
+        padding: 18px 0;
+        width: 100%;
+      }
+      .compact #slider {
+        transform: none;
+      }
+      .compact #preview {
+        display: none;
+      }
+      .compact #inputGrid {
+        grid-template-columns: auto auto 1fr auto auto 1fr;
       }
     </style>
-    <div class="horizontal">
+    <div id="container">
       <div id="base">
         <div id="base1"></div>
         <div id="base2">
@@ -157,6 +178,8 @@ export class ShopColorPicker extends BaseElement {
   }
 
   connectedCallback() {
+    this.refreshCompactMode();
+
     const base = this.$('base2');
     this.rc = new RectangleController(base, [0.5, 0.5]);
     this.$add(base, 'p-input', this.onPlanarInput);
@@ -187,6 +210,25 @@ export class ShopColorPicker extends BaseElement {
       this.gc = undefined;
     }
     super.disconnectedCallback();
+  }
+
+  private refreshCompactMode(): boolean {
+    let ret = false;
+    if (this.parentElement) {
+      const { width } = this.parentElement.getBoundingClientRect();
+      const cm = width < 480;
+      if (cm !== this._cm) {
+        this._cm = cm;
+        ret = true;
+      }
+    }
+    this.style.setProperty('--shop-cp-size', this._cm ? `240px` : '280px');
+    if (this._cm) {
+      this.$('container').classList.add('compact');
+    } else {
+      this.$('container').classList.remove('compact');
+    }
+    return ret;
   }
 
   private setSelection(type: GradientMode, forced = false) {
@@ -491,7 +533,8 @@ export class ShopColorPicker extends BaseElement {
     const t = this.$('thumb');
     if (t && this.rc) {
       const p = this.rc.position;
-      const [x, y] = [SIZE * p[0], SIZE * p[1]];
+      const size = this._cm ? 240 : 280;
+      const [x, y] = [size * p[0], size * p[1]];
       t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       t.style.background = this._hex;
     }
