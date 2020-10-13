@@ -75,6 +75,16 @@ export class SliderColorPicker extends BaseElement {
     `;
   }
 
+  static get observedAttributes() { return ['value', 'mode']; }
+
+  attributeChangedCallback(name: string, _: string, newValue: string) {
+    if (name === 'mode') {
+      this.mode = newValue as ColorMode;
+    } else {
+      super.attributeChangedCallback(name, _, newValue);
+    }
+  }
+
   connectedCallback() {
     this.gcs = [];
     for (let i = 0; i < 3; i++) {
