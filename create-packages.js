@@ -3,13 +3,13 @@ const { create } = require('domain');
 const fs = require('fs').promises;
 
 const INPUTS = [
-  { name: 'dino-color-picker', cl: 'DinoColorPicker', v: '0.0.3' },
-  { name: 'corel-color-picker', cl: 'CorelColorPicker', v: '0.0.3' },
-  { name: 'slider-color-picker', cl: 'SliderColorPicker', v: '0.0.3' },
-  { name: 'disk-color-picker', cl: 'DiskColorPicker', v: '0.0.3' },
-  { name: 'shop-color-picker', cl: 'ShopColorPicker', v: '0.0.3' },
-  { name: 'atom-color-picker', cl: 'AtomColorPicker', v: '0.0.3' },
-  { name: 'lucid-color-picker', cl: 'LucidColorPicker', v: '0.0.3' }
+  { name: 'dino-color-picker', cl: 'DinoColorPicker', v: '0.0.4' },
+  { name: 'corel-color-picker', cl: 'CorelColorPicker', v: '0.0.4' },
+  { name: 'slider-color-picker', cl: 'SliderColorPicker', v: '0.0.4' },
+  { name: 'disk-color-picker', cl: 'DiskColorPicker', v: '0.0.4' },
+  { name: 'shop-color-picker', cl: 'ShopColorPicker', v: '0.0.4' },
+  { name: 'atom-color-picker', cl: 'AtomColorPicker', v: '0.0.4' },
+  { name: 'lucid-color-picker', cl: 'LucidColorPicker', v: '0.0.4' }
 ];
 
 async function createPackages() {
@@ -51,5 +51,22 @@ export declare class ${item.cl} extends HTMLElement {
   }
 }
 
+async function createReadmes() {
+  for (const item of INPUTS) {
+    const template = `![Logo](https://everycolorpicker.com/images/social.png)
+
+# every-color-picker
+    
+This is a collection of color picker custom-elements that can be used in any web application. You can use them on a plain HTML page or when using a JavaScript framework.
+    
+Visit the website for demo and documentation: **[everycolorpicker.com](https://everycolorpicker.com/)**
+    `;
+    const filename = `./packages/${item.name}/README.md`;
+    console.log(`Writing '${filename}'...`);
+    await fs.writeFile(filename, template, { encoding: 'utf-8' });
+  }
+}
+
 createPackages();
 createTypeDefs();
+createReadmes();
