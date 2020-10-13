@@ -147,11 +147,11 @@ export class LucidColorPicker extends BaseElement {
         </div>
       </div>
       <div id="huePanel">
-        <input id="hue" type="range" min="0" max="360" value="0">
+        <input id="hue" type="range" min="0" max="360" value="0" aria-label="Hue">
       </div>
       <div id="alphaPanel">
         <div id="alphaGradient"></div>
-        <input id="alpha" type="range" min="0" max="100" value="100">
+        <input id="alpha" type="range" min="0" max="100" value="100" aria-label="Alpha">
       </div>
       <div id="previewPanel">
         <div id="preview"></div>
