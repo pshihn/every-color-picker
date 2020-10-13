@@ -137,7 +137,7 @@ export class ShopColorPicker extends BaseElement {
         grid-template-columns: auto auto 1fr auto auto 1fr;
       }
     </style>
-    <div id="container">
+    <div id="container" class="compact">
       <div id="base">
         <div id="base1"></div>
         <div id="base2">
