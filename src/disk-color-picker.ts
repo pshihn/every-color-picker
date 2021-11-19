@@ -126,6 +126,50 @@ export class DiskColorPicker extends BaseElement {
     `;
   }
 
+  private onWheelFocus = () => this.$('wheelThumb').classList.add('focused');
+  private onDiskFocus = () => this.$('diskThumb').classList.add('focused');
+  private onWheelBlur = () => this.$('wheelThumb').classList.remove('focused');
+  private onDiskBlur = () => this.$('diskThumb').classList.remove('focused');
+  private onWheelKeyDown = (e: Event) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const code = (e as KeyboardEvent).code;
+    const l = this._hsla[2];
+    switch (code) {
+      case 'ArrowUp':
+      case 'ArrowRight': {
+        if (l > 0) {
+          this._hsla[2] = Math.ceil(l) - 1;
+          this.updateColor();
+        }
+        break;
+      }
+      case 'ArrowLeft':
+      case 'ArrowDown': {
+        if (l < 100) {
+          this._hsla[2] = Math.floor(l) + 1;
+          this.updateColor();
+        }
+        break;
+      }
+      case 'End':
+        if (l !== 0) {
+          this._hsla[2] = 0;
+          this.updateColor();
+        }
+        break;
+      case 'Home':
+        if (l !== 100) {
+          this._hsla[2] = 100;
+          this.updateColor();
+        }
+        break;
+      case 'Escape':
+        this.$('wheelThumbInput').blur();
+        break;
+    }
+  };
+
   connectedCallback() {
     const wheel = this.$<HTMLCanvasElement>('wheel');
     const { width, height } = wheel;
@@ -140,18 +184,15 @@ export class DiskColorPicker extends BaseElement {
     this.$add(disk, 'p-input', this.handleDiskInput);
 
     this.$add('wheelThumbInput', 'focus', this.onWheelFocus);
-    this.$add('diskThumbInput', 'focus', this.onDiskFocus);
     this.$add('wheelThumbInput', 'blur', this.onWheelBlur);
+    this.$add('wheelThumbInput', 'keydown', this.onWheelKeyDown);
+
+    this.$add('diskThumbInput', 'focus', this.onDiskFocus);
     this.$add('diskThumbInput', 'blur', this.onDiskBlur);
 
     this.renderDisk();
     this.updateColor();
   }
-
-  private onWheelFocus = () => this.$('wheelThumb').classList.add('focused');
-  private onDiskFocus = () => this.$('diskThumb').classList.add('focused');
-  private onWheelBlur = () => this.$('wheelThumb').classList.remove('focused');
-  private onDiskBlur = () => this.$('diskThumb').classList.remove('focused');
 
   disconnectedCallback() {
     if (this.dialC) {
