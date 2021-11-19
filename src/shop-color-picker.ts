@@ -362,7 +362,7 @@ export class ShopColorPicker extends BaseElement {
     }
     this.updateColor(false);
     this._fire();
-  }
+  };
 
   private onGradientChange = () => {
     if (this.gc) {
@@ -399,7 +399,7 @@ export class ShopColorPicker extends BaseElement {
       this.updateColor(true);
       this._fire();
     }
-  }
+  };
 
   private updateColor(renderCanvas: boolean) {
     this._hex = rgbaToHex(...this._rgb);

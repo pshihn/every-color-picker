@@ -259,7 +259,7 @@ export class CorelColorPicker extends BaseElement {
       this.updateColor(false);
       this._fire();
     }
-  }
+  };
 
   private handleTriangleInput = (event: Event) => {
     event.stopPropagation();
@@ -283,7 +283,7 @@ export class CorelColorPicker extends BaseElement {
     this._hsla[2] = lumin;
     this.updateColor(false);
     this._fire();
-  }
+  };
 
   private _fire() {
     this.fire('change');

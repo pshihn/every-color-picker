@@ -72,7 +72,7 @@ export class AlphaController extends BaseElementController {
   private handleInput = (event: Event) => {
     event.stopPropagation();
     this.fire('range', { value: this.value });
-  }
+  };
 
   get value(): number {
     const range = this.$<HTMLInputElement>('range');

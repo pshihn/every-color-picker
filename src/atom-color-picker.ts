@@ -320,14 +320,14 @@ export class AtomColorPicker extends BaseElement {
     this._hsla[0] = angle;
     this.updateColor();
     this._fire();
-  }
+  };
 
   private onSatChange = (event: Event) => {
     const angle = (event as CustomEvent).detail.angle - 100;
     this._hsla[1] = (100 / 160) * angle;
     this.updateColor();
     this._fire();
-  }
+  };
 
   private onLuminChange = (event: Event) => {
     let angle = (event as CustomEvent).detail.angle;
@@ -337,7 +337,7 @@ export class AtomColorPicker extends BaseElement {
     this._hsla[2] = (100 / 160) * angle + (100 - 80 * (100 / 160));
     this.updateColor();
     this._fire();
-  }
+  };
 
   private _fire() {
     this.fire('change');

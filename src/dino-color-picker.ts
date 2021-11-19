@@ -363,7 +363,7 @@ export class DinoColorPicker extends BaseElement {
       this._hsla[2] = l;
       this.onHSLChange();
     }
-  }
+  };
 
   private onRGBinput = (event: Event) => {
     event.stopPropagation();
@@ -379,12 +379,12 @@ export class DinoColorPicker extends BaseElement {
     this._hex = rgbaToHex(r, g, b, alpha);
     this.updateColor();
     this._fire();
-  }
+  };
 
   private onHexInput = (event: Event) => {
     event.stopPropagation();
     this.onHexChange(this.$<HTMLInputElement>('inputHex').value.trim());
-  }
+  };
 
   private onHSLInput = (event: Event) => {
     event.stopPropagation();
@@ -393,12 +393,12 @@ export class DinoColorPicker extends BaseElement {
     this._hsla[2] = +this.$<HTMLInputElement>('inputL').value;
     this._hsla[3] = +this.$<HTMLInputElement>('inputA2').value;
     this.onHSLChange();
-  }
+  };
 
-  private onColorTypeToggle = (_event: Event) => {
+  private onColorTypeToggle = () => {
     this.colorType = (this.colorType + 1) % COLOR_TYPES.length;
     this.updateColorType();
-  }
+  };
 
   private onHueChange = (event: Event) => {
     let [hue, sat, lumin, alpha] = this._hsla;
@@ -415,12 +415,12 @@ export class DinoColorPicker extends BaseElement {
       this._hsla = [hue, sat, lumin, alpha];
       this.onHSLChange();
     }
-  }
+  };
 
   private onAlphaChange = (event: Event) => {
     this._hsla[3] = (event as CustomEvent).detail.value;
     this.onHSLChange();
-  }
+  };
 
   private onHSLChange() {
     const [hue, sat, lumin, alpha] = this._hsla;

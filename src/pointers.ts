@@ -92,13 +92,13 @@ export class PointerTracker {
       window.addEventListener('mousemove', this.move);
       window.addEventListener('mouseup', this.pointerEnd);
     }
-  }
+  };
 
   private touchStart = (event: TouchEvent) => {
     for (const touch of Array.from(event.changedTouches)) {
       this.triggerPointerStart(createPointer(touch), event);
     }
-  }
+  };
 
   private move = (event: InputEvent) => {
     const changedPointers = ('changedTouches' in event)
@@ -114,7 +114,7 @@ export class PointerTracker {
     }
     if (trackedChangedPointers.length === 0) return;
     this._h.onMove(trackedChangedPointers, event);
-  }
+  };
 
   private _end = (pointer: Pointer, event: InputEvent): boolean => {
     const index = this.currentPointers.findIndex((p) => p.id === pointer.id);
@@ -127,7 +127,7 @@ export class PointerTracker {
       this._h.onEnd(pointer, event, event.type === 'touchcancel' || event.type === 'pointercancel');
     }
     return true;
-  }
+  };
 
   private pointerEnd = (event: PointerEvent | MouseEvent) => {
     if (!this._end(createPointer(event), event)) return;
@@ -140,11 +140,11 @@ export class PointerTracker {
       window.removeEventListener('mousemove', this.move);
       window.removeEventListener('mouseup', this.pointerEnd);
     }
-  }
+  };
 
   private touchEnd = (event: TouchEvent) => {
     for (const touch of Array.from(event.changedTouches)) {
       this._end(createPointer(touch), event);
     }
-  }
+  };
 }

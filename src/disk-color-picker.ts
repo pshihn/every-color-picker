@@ -269,7 +269,7 @@ export class DiskColorPicker extends BaseElement {
     this._hsla[2] = (100 / 180) * angle;
     this.updateColor();
     this._fire();
-  }
+  };
 
   private handleDiskInput = (event: Event) => {
     const { angle, distance } = (event as CustomEvent).detail as { angle: number; distance: number };
@@ -277,7 +277,7 @@ export class DiskColorPicker extends BaseElement {
     this._hsla[1] = Math.round(distance * 100);
     this.updateColor();
     this._fire();
-  }
+  };
 
   private _fire() {
     this.fire('change');
