@@ -46,6 +46,7 @@ export class DiskColorPicker extends BaseElement {
         padding: 0 0 6px;
       }
       .knob {
+        position: relative;
         width: 20px;
         height: 20px;
         border: 2px solid #fff;
@@ -131,8 +132,7 @@ export class DiskColorPicker extends BaseElement {
   private onWheelBlur = () => this.$('wheelThumb').classList.remove('focused');
   private onDiskBlur = () => this.$('diskThumb').classList.remove('focused');
   private onWheelKeyDown = (e: Event) => {
-    e.preventDefault();
-    e.stopPropagation();
+    let stop = true;
     const code = (e as KeyboardEvent).code;
     const l = this._hsla[2];
     switch (code) {
@@ -167,6 +167,51 @@ export class DiskColorPicker extends BaseElement {
       case 'Escape':
         this.$('wheelThumbInput').blur();
         break;
+      default:
+        stop = false;
+        break;
+    }
+    if (stop) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+  private onDiskKeyDown = (e: Event) => {
+    let stop = true;
+    const code = (e as KeyboardEvent).code;
+    if (this.diskC) {
+      switch (code) {
+        case 'ArrowUp':
+          if (this.diskC) {
+            this.diskC.moveBy(0, -5);
+          }
+          break;
+        case 'ArrowRight':
+          if (this.diskC) {
+            this.diskC.moveBy(5, 0);
+          }
+          break;
+        case 'ArrowLeft':
+          if (this.diskC) {
+            this.diskC.moveBy(-5, 0);
+          }
+          break;
+        case 'ArrowDown':
+          if (this.diskC) {
+            this.diskC.moveBy(0, 5);
+          }
+          break;
+        case 'Escape':
+          this.$('diskThumbInput').blur();
+          break;
+        default:
+          stop = false;
+          break;
+      }
+    }
+    if (stop) {
+      e.preventDefault();
+      e.stopPropagation();
     }
   };
 
@@ -189,6 +234,7 @@ export class DiskColorPicker extends BaseElement {
 
     this.$add('diskThumbInput', 'focus', this.onDiskFocus);
     this.$add('diskThumbInput', 'blur', this.onDiskBlur);
+    this.$add('diskThumbInput', 'keydown', this.onDiskKeyDown);
 
     this.renderDisk();
     this.updateColor();
@@ -204,9 +250,13 @@ export class DiskColorPicker extends BaseElement {
       this.diskC = undefined;
     }
     this.$remove('wheelThumbInput', 'focus', this.onWheelFocus);
-    this.$remove('diskThumbInput', 'focus', this.onDiskFocus);
     this.$remove('wheelThumbInput', 'blur', this.onWheelBlur);
+    this.$remove('wheelThumbInput', 'keydown', this.onWheelKeyDown);
+
+    this.$remove('diskThumbInput', 'focus', this.onDiskFocus);
     this.$remove('diskThumbInput', 'blur', this.onDiskBlur);
+    this.$remove('diskThumbInput', 'keydown', this.onDiskKeyDown);
+
     this.$remove('diskTarget', 'p-input', this.handleDiskInput);
     this.$remove('wheel', 'p-input', this.handleDialInput);
 
