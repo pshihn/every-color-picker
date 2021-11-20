@@ -219,8 +219,8 @@ export class DiskColorPicker extends BaseElement {
     const wheel = this.$<HTMLCanvasElement>('wheel');
     const { width, height } = wheel;
     const min = Math.min(width, height);
-    const ro = (min / 2) - 2;
-    const ri = ro - DIAL_WIDTH;
+    const ro = (min / 2) - 2 + (DIAL_WIDTH / 2);
+    const ri = ro - (DIAL_WIDTH * 2.5);
     this.dialC = new ArcController(wheel, ri / min, ro / min, 0, 180);
     this.$add(wheel, 'p-input', this.handleDialInput);
 
