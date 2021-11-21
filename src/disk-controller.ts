@@ -1,5 +1,5 @@
 import { PointerTrackerHandler, Pointer, InputEvent, PointerTracker } from './pointers.js';
-import { radToDeg, Rect, degToRad } from './math.js';
+import { radToDeg, Rect } from './math.js';
 
 export class DiskController implements PointerTrackerHandler {
   private e: HTMLElement;
@@ -56,18 +56,6 @@ export class DiskController implements PointerTrackerHandler {
     this.setPosition(newX, newY);
     this.e.style.cursor = 'pointer';
     return true;
-  }
-
-  moveBy(dx: number, dy: number): void {
-    const { width, height } = this.e.getBoundingClientRect();
-    if (width && height) {
-      const angle = degToRad(this._a);
-      const x = this._d * Math.cos(angle);
-      const y = this._d * Math.sin(angle);
-      const newX = (x + dx / width) * 0.5 + 0.5;
-      const newY = (y + dy / height) * 0.5 + 0.5;
-      this.setPosition(newX, newY);
-    }
   }
 
   private setPosition(newX: number, newY: number): boolean {

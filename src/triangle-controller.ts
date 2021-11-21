@@ -75,9 +75,19 @@ export class TriangleController implements PointerTrackerHandler {
     this.e.style.cursor = '';
   }
 
+  moveBy(dx: number, dy: number): void {
+    const { width, height } = this.e.getBoundingClientRect();
+    if (width && height) {
+      let [x, y] = this.position;
+      x += dx / width;
+      y += dy / height;
+      this.setPosition(x, y, width, height);
+    }
+  }
+
   private setPosition(newX: number, newY: number, width: number, height: number): boolean {
     if (this.isInTriangle([newX, newY])) {
-      if ((newX !== this.position[0]) && (newY !== this.position[1])) {
+      if ((newX !== this.position[0]) || (newY !== this.position[1])) {
         this.position = [newX, newY];
         this.fire();
         return true;

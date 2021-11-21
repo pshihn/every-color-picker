@@ -128,8 +128,8 @@ export class DiskColorPicker extends BaseElement {
   }
 
   private onWheelFocus = () => this.$('wheelThumb').classList.add('focused');
-  private onDiskFocus = () => this.$('diskThumb').classList.add('focused');
   private onWheelBlur = () => this.$('wheelThumb').classList.remove('focused');
+  private onDiskFocus = () => this.$('diskThumb').classList.add('focused');
   private onDiskBlur = () => this.$('diskThumb').classList.remove('focused');
   private onWheelKeyDown = (e: Event) => {
     let stop = true;
@@ -179,35 +179,33 @@ export class DiskColorPicker extends BaseElement {
   private onDiskKeyDown = (e: Event) => {
     let stop = true;
     const code = (e as KeyboardEvent).code;
-    if (this.diskC) {
-      switch (code) {
-        case 'ArrowUp':
-          if (this.diskC) {
-            this.diskC.moveBy(0, -5);
-          }
-          break;
-        case 'ArrowRight':
-          if (this.diskC) {
-            this.diskC.moveBy(5, 0);
-          }
-          break;
-        case 'ArrowLeft':
-          if (this.diskC) {
-            this.diskC.moveBy(-5, 0);
-          }
-          break;
-        case 'ArrowDown':
-          if (this.diskC) {
-            this.diskC.moveBy(0, 5);
-          }
-          break;
-        case 'Escape':
-          this.$('diskThumbInput').blur();
-          break;
-        default:
-          stop = false;
-          break;
-      }
+    switch (code) {
+      case 'ArrowRight':
+        this._hsla[0] = (this._hsla[0] + 1) % 360;
+        this.updateColor();
+        break;
+      case 'ArrowLeft':
+        this._hsla[0] = ((this._hsla[0] || 360) - 1) % 360;
+        this.updateColor();
+        break;
+      case 'ArrowUp':
+        if (this._hsla[1] < 100) {
+          this._hsla[1]++;
+          this.updateColor();
+        }
+        break;
+      case 'ArrowDown':
+        if (this._hsla[1] > 0) {
+          this._hsla[1]--;
+          this.updateColor();
+        }
+        break;
+      case 'Escape':
+        this.$('diskThumbInput').blur();
+        break;
+      default:
+        stop = false;
+        break;
     }
     if (stop) {
       e.preventDefault();
