@@ -181,11 +181,11 @@ export class DiskColorPicker extends BaseElement {
     const code = (e as KeyboardEvent).code;
     switch (code) {
       case 'ArrowRight':
-        this._hsla[0] = (this._hsla[0] + 1) % 360;
+        this._hsla[0] = (this._hsla[0] + 2) % 360;
         this.updateColor();
         break;
       case 'ArrowLeft':
-        this._hsla[0] = ((this._hsla[0] || 360) - 1) % 360;
+        this._hsla[0] = ((this._hsla[0] || 360) - 2) % 360;
         this.updateColor();
         break;
       case 'ArrowUp':
