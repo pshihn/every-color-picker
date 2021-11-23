@@ -74,7 +74,7 @@ export class DiskColorPicker extends BaseElement {
         height: 100%;
         border-radius: 50%;
         opacity: 0.2;
-        background: var(--ecp-i-thumb-color);
+        background: var(--ecp-i-thumb-shadow-color);
         pointer-events: none;
         transform: scale(0);
         transition: transform 0.18s ease;
@@ -296,13 +296,15 @@ export class DiskColorPicker extends BaseElement {
       const y = (r * Math.sin(degToRad(a))) + HW;
       t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       t.style.setProperty('--ecp-i-thumb-color', hslString(this._hsla));
+      const [h, s] = this._hsla;
+      t.style.setProperty('--ecp-i-thumb-shadow-color', hslString([h, s, 40, 1]));
     }
   }
 
   private updateWheelThumb() {
     const t = this.$('wheelThumb');
     if (t) {
-      const l = this._hsla[2];
+      const [h, s, l] = this._hsla;
       const angle = (180 / 100) * l;
       const wheel = this.$<HTMLCanvasElement>('wheel');
       const { width, height } = wheel;
@@ -311,6 +313,7 @@ export class DiskColorPicker extends BaseElement {
       const y = (height / 2) + (radius * Math.sin(degToRad(angle)));
       t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       t.style.setProperty('--ecp-i-thumb-color', hslString(this._hsla));
+      t.style.setProperty('--ecp-i-thumb-shadow-color', hslString([h, s, 50, 1]));
     }
   }
 
