@@ -65,7 +65,7 @@ export class CorelColorPicker extends BaseElement {
         height: 100%;
         border-radius: 50%;
         opacity: 0.3;
-        background: var(--ecp-i-thumb-color);
+        background: var(--ecp-i-thumb-shadow-color);
         pointer-events: none;
         transform: scale(0);
         transition: transform 0.18s ease;
@@ -345,7 +345,7 @@ export class CorelColorPicker extends BaseElement {
   private updateHueThumb() {
     const t = this.$('thumbHue');
     if (t) {
-      const hue = this._hsla[0];
+      const [hue] = this._hsla;
       const wheel = this.$<HTMLCanvasElement>('wheel');
       const { width, height } = wheel;
       const radius = (Math.min(width, height) / 2) - (DIAL_WIDTH / 2) - 2.5;
@@ -353,6 +353,7 @@ export class CorelColorPicker extends BaseElement {
       const y = (height / 2) + (radius * Math.sin(degToRad(hue)));
       t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       t.style.setProperty('--ecp-i-thumb-color', hslString(this._hsla));
+      t.style.setProperty('--ecp-i-thumb-shadow-color', hslString([hue, 100, 60, 1]));
     }
   }
 
@@ -363,6 +364,8 @@ export class CorelColorPicker extends BaseElement {
       const [x, y] = [INNER_WIDTH * position[0], INNER_WIDTH * position[1]];
       t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       t.style.setProperty('--ecp-i-thumb-color', hslString(this._hsla));
+      const [h] = this._hsla;
+      t.style.setProperty('--ecp-i-thumb-shadow-color', hslString([h, 100, 60, 1]));
     }
   }
 
