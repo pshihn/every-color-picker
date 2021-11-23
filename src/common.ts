@@ -61,4 +61,10 @@ input[type=range]::-webkit-slider-thumb {
   width: 22px;
   margin: 0;
 }
+input[type=range]:focus::-moz-range-thumb {
+  border: 2px solid rgba(0,0,0,0.6);
+}
+input[type=range]:focus::-webkit-slider-thumb {
+  border: 2px solid rgba(0,0,0,0.6);
+}
 `;

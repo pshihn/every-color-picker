@@ -140,6 +140,9 @@ export class DinoColorPicker extends BaseElement {
         pointer-events: none;
         background: currentcolor;
       }
+      #colorTypeToggle:focus::before {
+        opacity: 0.2;
+      }
       svg {
         pointer-events: none;
         display: block;
@@ -160,6 +163,9 @@ export class DinoColorPicker extends BaseElement {
       @media(hover:hover) {
         #colorTypeToggle:hover::before {
           opacity: 0.1;
+        }
+        #colorTypeToggle:focus:hover::before {
+          opacity: 0.2;
         }
       }
     </style>
