@@ -63,6 +63,16 @@ export class RectangleController implements PointerTrackerHandler {
     }
   }
 
+  moveBy(dx: number, dy: number): void {
+    const { width, height } = this.e.getBoundingClientRect();
+    if (width && height) {
+      let [x, y] = this.position;
+      x += dx / width;
+      y += dy / height;
+      this.setPosition(x, y);
+    }
+  }
+
   private setPosition(newX: number, newY: number): boolean {
     const [x, y] = this.clamp([newX, newY]);
     if ((x !== this.p[0]) || (y !== this.p[1])) {
