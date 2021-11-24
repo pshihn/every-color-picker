@@ -115,7 +115,7 @@ export class AtomColorPicker extends BaseElement {
       <canvas id="wheel"></canvas>
       <div id="hThumb" class="thumb">
         <div class="knob"></div>
-        <input id="hThumbInput">
+        <input readonly id="hThumbInput">
       </div>
       <div class="grid">
         <div class="horizontal">
@@ -124,14 +124,14 @@ export class AtomColorPicker extends BaseElement {
             <div id="sThumb" class="thumb">
               <div class="knob"></div>
             </div>
-            <input id="sThumbInput">
+            <input readonly id="sThumbInput">
           </div>
           <div id="lPanel" style="position: relative;">
             <canvas id="lArc"></canvas>
             <div id="lThumb" class="thumb">
               <div class="knob"></div>
             </div>
-            <input id="lThumbInput">
+            <input readonly id="lThumbInput">
           </div>
         </div>
       </div>

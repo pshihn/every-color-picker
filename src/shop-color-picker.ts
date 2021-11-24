@@ -180,7 +180,7 @@ export class ShopColorPicker extends BaseElement {
         <div id="base2">
           <div id="thumb">
             <div class="knob"></div>
-            <input id="thumbInput" tabindex="1">
+            <input readonly id="thumbInput" tabindex="1">
           </div>
         </div>
       </div>
