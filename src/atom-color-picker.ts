@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 import { BaseElement } from './base-element.js';
 import { STYLES, SHADOW2 } from './common.js';
 import { radToDeg, degToRad } from './math.js';
@@ -6,7 +8,7 @@ import { ArcController } from './arc-controller.js';
 
 const DIAL_WIDTH = 12;
 const WIDTH = 240;
-const INNNER_WIDTH = WIDTH - (DIAL_WIDTH * 6);
+const INNNER_WIDTH = WIDTH - 80;
 
 export class AtomColorPicker extends BaseElement {
   private _hsla: Color = [0, 100, 50, 1];
@@ -28,15 +30,60 @@ export class AtomColorPicker extends BaseElement {
       }
       .thumb {
         position: absolute;
+        width: 40px;
+        height: 40px;
+        padding: 10px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: transparent;
+        top: -20px;
+        left: -20px;
+        pointer-events: none;
+      }
+      #hThumb::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        opacity: 0.2;
+        background: var(--ecp-i-thumb-shadow-color);
+        pointer-events: none;
+        transform: scale(0);
+        transition: transform 0.18s ease;
+      }
+      input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+        cursor: pointer;
+        opacity: 0;
+      }
+      #hThumb.focused::before {
+        transform: scale(1);
+      }
+      #lThumb.focused .knob,
+      #sThumb.focused .knob {
+        box-shadow: 0 0 5px 0px rgb(0 0 0 / 50%);
+        transform: scale(1);
+      }
+      #lThumb .knob,
+      #sThumb .knob {
+        transform: scale(0.8);
+      }
+      .knob {
+        position: relative;
         width: 20px;
         height: 20px;
-        border-radius: 50%;
+        border: 2px solid #fff;
         box-shadow: ${SHADOW2};
-        background: transparent;
-        border: 2px solid #ffffff;
-        pointer-events: none;
-        top: -10px;
-        left: -10px;
+        border-radius: 50%;
+        background: var(--ecp-i-thumb-color);
       }
       .grid {
         position: absolute;
@@ -66,16 +113,25 @@ export class AtomColorPicker extends BaseElement {
     </style>
     <div style="position: relative">
       <canvas id="wheel"></canvas>
-      <div id="hThumb" class="thumb"></div>
+      <div id="hThumb" class="thumb">
+        <div class="knob"></div>
+        <input id="hThumbInput">
+      </div>
       <div class="grid">
         <div class="horizontal">
           <div id="sPanel" style="position: relative;">
             <canvas id="sArc"></canvas>
-            <div id="sThumb" class="thumb"></div>
+            <div id="sThumb" class="thumb">
+              <div class="knob"></div>
+            </div>
+            <input id="sThumbInput">
           </div>
           <div id="lPanel" style="position: relative;">
             <canvas id="lArc"></canvas>
-            <div id="lThumb" class="thumb"></div>
+            <div id="lThumb" class="thumb">
+              <div class="knob"></div>
+            </div>
+            <input id="lThumbInput">
           </div>
         </div>
       </div>
@@ -86,30 +142,137 @@ export class AtomColorPicker extends BaseElement {
     `;
   }
 
+  private onHFocus = () => this.$('hThumb').classList.add('focused');
+  private onHBlur = () => this.$('hThumb').classList.remove('focused');
+  private onSFocus = () => this.$('sThumb').classList.add('focused');
+  private onSBlur = () => this.$('sThumb').classList.remove('focused');
+  private onLFocus = () => this.$('lThumb').classList.add('focused');
+  private onLBlur = () => this.$('lThumb').classList.remove('focused');
+
+  private onHKeyDown = (e: Event) => {
+    let stop = true;
+    const code = (e as KeyboardEvent).code;
+    switch (code) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+        this._hsla[0] = (this._hsla[0] + 2) % 360;
+        this.updateColor();
+        break;
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        this._hsla[0] = ((this._hsla[0] || 360) - 2) % 360;
+        this.updateColor();
+        break;
+      case 'Escape':
+        this.$('hThumbInput').blur();
+        break;
+      default:
+        stop = false;
+        break;
+    }
+    if (stop) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+  private onSKeyDown = (e: Event) => {
+    let stop = true;
+    const code = (e as KeyboardEvent).code;
+    switch (code) {
+      case 'ArrowRight':
+      case 'ArrowUp':
+        if (this._hsla[1] < 100) {
+          this._hsla[1]++;
+          this.updateColor();
+        }
+        break;
+
+      case 'ArrowDown':
+      case 'ArrowLeft':
+        if (this._hsla[1] > 0) {
+          this._hsla[1]--;
+          this.updateColor();
+        }
+        break;
+      case 'Escape':
+        this.$('sThumbInput').blur();
+        break;
+      default:
+        stop = false;
+        break;
+    }
+    if (stop) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+  private onLKeyDown = (e: Event) => {
+    let stop = true;
+    const code = (e as KeyboardEvent).code;
+    switch (code) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+        if (this._hsla[2] < 100) {
+          this._hsla[2]++;
+          this.updateColor();
+        }
+        break;
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        if (this._hsla[2] > 0) {
+          this._hsla[2]--;
+          this.updateColor();
+        }
+        break;
+      case 'Escape':
+        this.$('lThumbInput').blur();
+        break;
+      default:
+        stop = false;
+        break;
+    }
+    if (stop) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   connectedCallback() {
     {
       const wheel = this.$<HTMLCanvasElement>('wheel');
-      const ro = (WIDTH / 2) - 2;
-      const ri = ro - DIAL_WIDTH;
+      const ro = (WIDTH / 2) - 2 + 10;
+      const ri = ro - DIAL_WIDTH - 20;
       this.acs[0] = new ArcController(wheel, ri / WIDTH, ro / WIDTH, 0, 359.99);
       this.$add(wheel, 'p-input', this.onHueChange);
     }
     {
       const canvas = this.$<HTMLCanvasElement>('sArc');
       const w = INNNER_WIDTH;
-      const ro = (w / 2) - 2;
-      const ri = ro - DIAL_WIDTH;
+      const ro = (w / 2) - 2 + 10;
+      const ri = ro - DIAL_WIDTH - 20;
       this.acs[1] = new ArcController(canvas, ri / w, ro / w, 100, 260);
       this.$add(canvas, 'p-input', this.onSatChange);
     }
     {
       const canvas = this.$<HTMLCanvasElement>('lArc');
       const w = INNNER_WIDTH;
-      const ro = (w / 2) - 2;
-      const ri = ro - DIAL_WIDTH;
+      const ro = (w / 2) - 2 + 10;
+      const ri = ro - DIAL_WIDTH - 20;
       this.acs[2] = new ArcController(canvas, ri / w, ro / w, -80, 80);
       this.$add(canvas, 'p-input', this.onLuminChange);
     }
+
+    this.$add('hThumbInput', 'focus', this.onHFocus);
+    this.$add('hThumbInput', 'blur', this.onHBlur);
+    this.$add('hThumbInput', 'keydown', this.onHKeyDown);
+
+    this.$add('sThumbInput', 'focus', this.onSFocus);
+    this.$add('sThumbInput', 'blur', this.onSBlur);
+    this.$add('sThumbInput', 'keydown', this.onSKeyDown);
+
+    this.$add('lThumbInput', 'focus', this.onLFocus);
+    this.$add('lThumbInput', 'blur', this.onLBlur);
+    this.$add('lThumbInput', 'keydown', this.onLKeyDown);
 
     this.renderWheel();
     this.updateColor();
@@ -118,6 +281,19 @@ export class AtomColorPicker extends BaseElement {
   disconnectedCallback() {
     this.acs.forEach((ac) => ac.detach());
     this.acs = [];
+
+    this.$remove('hThumbInput', 'focus', this.onHFocus);
+    this.$remove('hThumbInput', 'blur', this.onHBlur);
+    this.$remove('hThumbInput', 'keydown', this.onHKeyDown);
+
+    this.$remove('sThumbInput', 'focus', this.onSFocus);
+    this.$remove('sThumbInput', 'blur', this.onSBlur);
+    this.$remove('sThumbInput', 'keydown', this.onSKeyDown);
+
+    this.$remove('lThumbInput', 'focus', this.onLFocus);
+    this.$remove('lThumbInput', 'blur', this.onLBlur);
+    this.$remove('lThumbInput', 'keydown', this.onLKeyDown);
+
     super.disconnectedCallback();
   }
 
@@ -288,7 +464,8 @@ export class AtomColorPicker extends BaseElement {
     const x = (WIDTH / 2) + (radius * Math.cos(degToRad(hue)));
     const y = (WIDTH / 2) + (radius * Math.sin(degToRad(hue)));
     t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-    t.style.background = hslString([hue, 100, 50, 1]);
+    t.style.setProperty('--ecp-i-thumb-color', hslString([hue, 100, 50, 1]));
+    t.style.setProperty('--ecp-i-thumb-shadow-color', hslString([hue, 100, 50, 1]));
   }
 
   private updateSatThumb() {
@@ -300,7 +477,8 @@ export class AtomColorPicker extends BaseElement {
     const x = (w / 2) + (radius * Math.cos(degToRad(angle)));
     const y = (w / 2) + (radius * Math.sin(degToRad(angle)));
     t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-    t.style.background = hslString(this._hsla);
+    t.style.setProperty('--ecp-i-thumb-color', hslString(this._hsla));
+    t.style.setProperty('--ecp-i-thumb-shadow-color', hslString([this._hsla[0], 100, 50, 1]));
   }
 
   private updateLuminThumb() {
@@ -312,10 +490,12 @@ export class AtomColorPicker extends BaseElement {
     const x = (radius * Math.cos(degToRad(angle)));
     const y = (w / 2) + (radius * Math.sin(degToRad(angle)));
     t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-    t.style.background = hslString(this._hsla);
+    t.style.setProperty('--ecp-i-thumb-color', hslString(this._hsla));
+    t.style.setProperty('--ecp-i-thumb-shadow-color', hslString([this._hsla[0], 100, 50, 1]));
   }
 
   private onHueChange = (event: Event) => {
+    this.$('hThumbInput').focus();
     const angle = (event as CustomEvent).detail.angle;
     this._hsla[0] = angle;
     this.updateColor();
@@ -323,6 +503,7 @@ export class AtomColorPicker extends BaseElement {
   };
 
   private onSatChange = (event: Event) => {
+    this.$('sThumbInput').focus();
     const angle = (event as CustomEvent).detail.angle - 100;
     this._hsla[1] = (100 / 160) * angle;
     this.updateColor();
@@ -330,6 +511,7 @@ export class AtomColorPicker extends BaseElement {
   };
 
   private onLuminChange = (event: Event) => {
+    this.$('lThumbInput').focus();
     let angle = (event as CustomEvent).detail.angle;
     if (angle > 80) {
       angle = angle - 360;
