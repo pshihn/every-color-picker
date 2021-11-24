@@ -99,6 +99,7 @@ export class CorelColorPicker extends BaseElement {
         border: none;
         cursor: pointer;
         opacity: 0;
+        font-size: 16px;
       }
     </style>
     <div id="base">

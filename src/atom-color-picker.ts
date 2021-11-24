@@ -63,6 +63,7 @@ export class AtomColorPicker extends BaseElement {
         border: none;
         cursor: pointer;
         opacity: 0;
+        font-size: 16px;
       }
       #hThumb.focused::before {
         transform: scale(1);

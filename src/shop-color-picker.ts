@@ -109,6 +109,7 @@ export class ShopColorPicker extends BaseElement {
         border: none;
         cursor: pointer;
         opacity: 0;
+        font-size: 16px;
       }
       #inputGrid {
         grid-gap: 6px;
