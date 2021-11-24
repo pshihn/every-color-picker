@@ -189,7 +189,7 @@ export class LucidColorPicker extends BaseElement {
     this._hsv[2] = Math.max(0, Math.min(100, Math.round((1 - py) * 100)));
     this.updateColor();
     this._fire();
-  }
+  };
 
   private onHueChange = () => {
     const input = this.$<HTMLInputElement>('hue');
@@ -199,7 +199,7 @@ export class LucidColorPicker extends BaseElement {
       this.updateColor();
       this._fire();
     }
-  }
+  };
 
   private onAlphaChange = () => {
     const input = this.$<HTMLInputElement>('alpha');
@@ -209,7 +209,7 @@ export class LucidColorPicker extends BaseElement {
       this.updateColor();
       this._fire();
     }
-  }
+  };
 
   private updateColor() {
     // update thumb position

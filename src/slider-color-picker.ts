@@ -117,20 +117,22 @@ export class SliderColorPicker extends BaseElement {
     this._mode = value;
     if (this.gcs.length) {
       switch (value) {
-        case 'hsba':
+        case 'hsba': {
           const [h, s, v] = this._hsva;
           this.gcs[0].setMode('h', h);
           this.gcs[1].setMode('s', s);
           this.gcs[2].setMode('v', v);
           ['H', 'S', 'B'].forEach((d, i) => this.$(`l${i + 1}`).textContent = d);
           break;
-        case 'rgba':
+        }
+        case 'rgba': {
           const [r, g, b] = this._rgba;
           this.gcs[0].setMode('r', r);
           this.gcs[1].setMode('g', g);
           this.gcs[2].setMode('b', b);
           ['R', 'G', 'B'].forEach((d, i) => this.$(`l${i + 1}`).textContent = d);
           break;
+        }
       }
     }
   }
@@ -154,7 +156,7 @@ export class SliderColorPicker extends BaseElement {
     }
     this.deferredUpdateUi();
     this._fire();
-  }
+  };
 
   private onColorChange = () => {
     if (this.gcs.length && this.alphaC) {
@@ -177,7 +179,7 @@ export class SliderColorPicker extends BaseElement {
     }
     this.deferredUpdateUi();
     this._fire();
-  }
+  };
 
   private _deferred = false;
   private deferredUpdateUi() {

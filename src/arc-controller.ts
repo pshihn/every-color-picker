@@ -11,7 +11,7 @@ export class ArcController implements PointerTrackerHandler {
   private a1: number;
   private a2: number;
 
-  constructor(node: HTMLElement, innerRadius: number, outerRadius: number, startAngle: number = 0, stopAngle: number = 360) {
+  constructor(node: HTMLElement, innerRadius: number, outerRadius: number, startAngle = 0, stopAngle = 360) {
     this.e = node;
     this.ri = innerRadius;
     this.ro = outerRadius;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ArcController } from './arc-controller.js';
 import { BaseElement } from './base-element.js';
 import { Color, hslString, hslToRgb, parseColor, rgbaToHex } from './colors.js';
@@ -7,7 +8,7 @@ import { degToRad } from './math.js';
 
 const DIAL_WIDTH = 20;
 const WIDTH = 280;
-const INNER_WIDTH = WIDTH - (DIAL_WIDTH * 4);
+const INNER_WIDTH = WIDTH - 100;
 
 export class DiskColorPicker extends BaseElement {
   private _hsla: Color = [0, 100, 50, 1];
@@ -42,18 +43,44 @@ export class DiskColorPicker extends BaseElement {
         place-items: center;
         place-content: center;
         pointer-events: none;
+        padding: 0 0 6px;
       }
-      #wheelThumb,
-      #diskThumb {
-        position: absolute;
+      .knob {
+        position: relative;
         width: 20px;
         height: 20px;
-        border-radius: 50%;
+        border: 2px solid #fff;
         box-shadow: ${SHADOW2};
+        border-radius: 50%;
+        background: var(--ecp-i-thumb-color);
+      }
+      .thumb {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        padding: 10px;
+        border-radius: 50%;
+        overflow: hidden;
         background: transparent;
-        border: 2px solid #ffffff;
-        top: -10px;
-        left: -10px;
+        top: -20px;
+        left: -20px;
+      }
+      .thumb::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        opacity: 0.2;
+        background: var(--ecp-i-thumb-shadow-color);
+        pointer-events: none;
+        transform: scale(0);
+        transition: transform 0.18s ease;
+      }
+      .thumb.focused::before {
+        transform: scale(1);
       }
       #wheelThumb {
         pointer-events: none;
@@ -70,32 +97,142 @@ export class DiskColorPicker extends BaseElement {
         border-radius: 50%;
         pointer-events: auto;
       }
+      input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+        cursor: pointer;
+        opacity: 0;
+      }
     </style>
     <div id="base">
       <canvas id="wheel" width="${WIDTH}" height="${WIDTH}"></canvas>
-      <div id="wheelThumb"></div>
+      <div id="wheelThumb" class="thumb">
+        <div class="knob"></div>
+        <input id="wheelThumbInput" tabindex="2">
+      </div>
       <div id="diskPanel">
         <div id="diskTarget">
           <canvas id="disk" width="${INNER_WIDTH}" height="${INNER_WIDTH}"></canvas>
-          <div id="diskThumb"></div>
+          <div id="diskThumb" class="thumb">
+            <div class="knob"></div>
+            <input id="diskThumbInput" tabindex="1">
+          </div>
         </div>
       </div>
     </div>
     `;
   }
 
+  private onWheelFocus = () => this.$('wheelThumb').classList.add('focused');
+  private onWheelBlur = () => this.$('wheelThumb').classList.remove('focused');
+  private onDiskFocus = () => this.$('diskThumb').classList.add('focused');
+  private onDiskBlur = () => this.$('diskThumb').classList.remove('focused');
+  private onWheelKeyDown = (e: Event) => {
+    let stop = true;
+    const code = (e as KeyboardEvent).code;
+    const l = this._hsla[2];
+    switch (code) {
+      case 'ArrowUp':
+      case 'ArrowRight': {
+        if (l > 0) {
+          this._hsla[2] = Math.ceil(l) - 1;
+          this.updateColor();
+        }
+        break;
+      }
+      case 'ArrowLeft':
+      case 'ArrowDown': {
+        if (l < 100) {
+          this._hsla[2] = Math.floor(l) + 1;
+          this.updateColor();
+        }
+        break;
+      }
+      case 'End':
+        if (l !== 0) {
+          this._hsla[2] = 0;
+          this.updateColor();
+        }
+        break;
+      case 'Home':
+        if (l !== 100) {
+          this._hsla[2] = 100;
+          this.updateColor();
+        }
+        break;
+      case 'Escape':
+        this.$('wheelThumbInput').blur();
+        break;
+      default:
+        stop = false;
+        break;
+    }
+    if (stop) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+  private onDiskKeyDown = (e: Event) => {
+    let stop = true;
+    const code = (e as KeyboardEvent).code;
+    switch (code) {
+      case 'ArrowRight':
+        this._hsla[0] = (this._hsla[0] + 2) % 360;
+        this.updateColor();
+        break;
+      case 'ArrowLeft':
+        this._hsla[0] = ((this._hsla[0] || 360) - 2) % 360;
+        this.updateColor();
+        break;
+      case 'ArrowUp':
+        if (this._hsla[1] < 100) {
+          this._hsla[1]++;
+          this.updateColor();
+        }
+        break;
+      case 'ArrowDown':
+        if (this._hsla[1] > 0) {
+          this._hsla[1]--;
+          this.updateColor();
+        }
+        break;
+      case 'Escape':
+        this.$('diskThumbInput').blur();
+        break;
+      default:
+        stop = false;
+        break;
+    }
+    if (stop) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   connectedCallback() {
     const wheel = this.$<HTMLCanvasElement>('wheel');
     const { width, height } = wheel;
     const min = Math.min(width, height);
-    const ro = (min / 2) - 2;
-    const ri = ro - DIAL_WIDTH;
+    const ro = (min / 2) - 2 + (DIAL_WIDTH / 2);
+    const ri = ro - (DIAL_WIDTH * 2.5);
     this.dialC = new ArcController(wheel, ri / min, ro / min, 0, 180);
     this.$add(wheel, 'p-input', this.handleDialInput);
 
     const disk = this.$<HTMLDivElement>('diskTarget');
     this.diskC = new DiskController(disk, 0, 0);
     this.$add(disk, 'p-input', this.handleDiskInput);
+
+    this.$add('wheelThumbInput', 'focus', this.onWheelFocus);
+    this.$add('wheelThumbInput', 'blur', this.onWheelBlur);
+    this.$add('wheelThumbInput', 'keydown', this.onWheelKeyDown);
+
+    this.$add('diskThumbInput', 'focus', this.onDiskFocus);
+    this.$add('diskThumbInput', 'blur', this.onDiskBlur);
+    this.$add('diskThumbInput', 'keydown', this.onDiskKeyDown);
 
     this.renderDisk();
     this.updateColor();
@@ -110,6 +247,17 @@ export class DiskColorPicker extends BaseElement {
       this.diskC.detach();
       this.diskC = undefined;
     }
+    this.$remove('wheelThumbInput', 'focus', this.onWheelFocus);
+    this.$remove('wheelThumbInput', 'blur', this.onWheelBlur);
+    this.$remove('wheelThumbInput', 'keydown', this.onWheelKeyDown);
+
+    this.$remove('diskThumbInput', 'focus', this.onDiskFocus);
+    this.$remove('diskThumbInput', 'blur', this.onDiskBlur);
+    this.$remove('diskThumbInput', 'keydown', this.onDiskKeyDown);
+
+    this.$remove('diskTarget', 'p-input', this.handleDiskInput);
+    this.$remove('wheel', 'p-input', this.handleDialInput);
+
     super.disconnectedCallback();
   }
 
@@ -147,14 +295,16 @@ export class DiskColorPicker extends BaseElement {
       const x = (r * Math.cos(degToRad(a))) + HW;
       const y = (r * Math.sin(degToRad(a))) + HW;
       t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      t.style.background = hslString(this._hsla);
+      t.style.setProperty('--ecp-i-thumb-color', hslString(this._hsla));
+      const [h, s] = this._hsla;
+      t.style.setProperty('--ecp-i-thumb-shadow-color', hslString([h, s, 40, 1]));
     }
   }
 
   private updateWheelThumb() {
     const t = this.$('wheelThumb');
     if (t) {
-      const l = this._hsla[2];
+      const [h, s, l] = this._hsla;
       const angle = (180 / 100) * l;
       const wheel = this.$<HTMLCanvasElement>('wheel');
       const { width, height } = wheel;
@@ -162,7 +312,8 @@ export class DiskColorPicker extends BaseElement {
       const x = (width / 2) + (radius * Math.cos(degToRad(angle)));
       const y = (height / 2) + (radius * Math.sin(degToRad(angle)));
       t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      t.style.background = hslString(this._hsla);
+      t.style.setProperty('--ecp-i-thumb-color', hslString(this._hsla));
+      t.style.setProperty('--ecp-i-thumb-shadow-color', hslString([h, s, 50, 1]));
     }
   }
 
@@ -265,19 +416,21 @@ export class DiskColorPicker extends BaseElement {
   }
 
   private handleDialInput = (event: Event) => {
+    this.$('wheelThumbInput').focus();
     const angle = (event as CustomEvent).detail.angle;
     this._hsla[2] = (100 / 180) * angle;
     this.updateColor();
     this._fire();
-  }
+  };
 
   private handleDiskInput = (event: Event) => {
+    this.$('diskThumbInput').focus();
     const { angle, distance } = (event as CustomEvent).detail as { angle: number; distance: number };
     this._hsla[0] = angle;
     this._hsla[1] = Math.round(distance * 100);
     this.updateColor();
     this._fire();
-  }
+  };
 
   private _fire() {
     this.fire('change');

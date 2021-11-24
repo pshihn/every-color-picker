@@ -63,7 +63,7 @@ export class HueController extends BaseElementController {
     const value = +this.$<HTMLInputElement>('range').value;
     this.updateThumb();
     this.fire('range', { value });
-  }
+  };
 
   private updateThumb() {
     const range = this.$<HTMLInputElement>('range');

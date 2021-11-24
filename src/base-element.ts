@@ -1,15 +1,16 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 function _fire(src: HTMLElement, name: string, detail?: any) {
-  const init: any = {
+  src.dispatchEvent(new CustomEvent(name, {
     bubbles: true,
     composed: true,
     detail
-  };
-  src.dispatchEvent(new CustomEvent(name, init));
+  }));
 }
 
 export abstract class BaseElement extends HTMLElement {
   protected root: ShadowRoot;
-  protected __n = new Map<string, HTMLElement>();
+  private __n = new Map<string, HTMLElement>();
   abstract value: string;
 
   constructor() {
@@ -62,7 +63,7 @@ export abstract class BaseElement extends HTMLElement {
 export abstract class BaseElementController {
   protected e: HTMLElement;
   protected root: ShadowRoot;
-  protected __n = new Map<string, HTMLElement>();
+  private __n = new Map<string, HTMLElement>();
 
   constructor(e: HTMLElement) {
     this.e = e;

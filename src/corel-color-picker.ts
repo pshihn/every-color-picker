@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 import { BaseElement } from './base-element.js';
 import { STYLES, SHADOW2, } from './common.js';
 import { radToDeg, degToRad, Point, parseRotatedTriangle, lineValue, rotate } from './math.js';
@@ -31,18 +33,48 @@ export class CorelColorPicker extends BaseElement {
       #base {
         position: relative;
       }
-      #thumbTri,
-      #thumbHue {
-        position: absolute;
+      .knob {
+        position: relative;
         width: 20px;
         height: 20px;
-        border-radius: 50%;
+        border: 2px solid #fff;
         box-shadow: ${SHADOW2};
+        border-radius: 50%;
+        background: var(--ecp-i-thumb-color);
+      }
+      #thumbHue .knob {
         background: transparent;
-        border: 2px solid #ffffff;
+      }
+      .thumb {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        padding: 10px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: transparent;
+        top: -20px;
+        left: -20px;
+      }
+      .thumb::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        opacity: 0.3;
+        background: var(--ecp-i-thumb-shadow-color);
         pointer-events: none;
-        top: -10px;
-        left: -10px;
+        transform: scale(0);
+        transition: transform 0.18s ease;
+      }
+      .thumb.focused::before {
+        transform: scale(1);
+      }
+      #thumbHue {
+        pointer-events: none;
       }
       #satcan {
         border-radius: 50%;
@@ -58,14 +90,30 @@ export class CorelColorPicker extends BaseElement {
         place-content: center;
         pointer-events: none;
       }
+      input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+        cursor: pointer;
+        opacity: 0;
+      }
     </style>
     <div id="base">
       <canvas id="wheel" width="${WIDTH}" height="${WIDTH}"></canvas>
-      <div id="thumbHue"></div>
+      <div id="thumbHue" class="thumb">
+        <div class="knob"></div>
+        <input id="hueInput">
+      </div>
       <div id="tripanel">
         <div style="position: relative;">
           <canvas id="satcan" width="${INNER_WIDTH}" height="${INNER_WIDTH}"></canvas>
-          <div id="thumbTri"></div>
+          <div id="thumbTri" class="thumb">
+            <div class="knob"></div>
+            <input id="triInput">
+          </div>
         </div>
       </div>
       
@@ -73,19 +121,90 @@ export class CorelColorPicker extends BaseElement {
     `;
   }
 
+  private onHueFocus = () => this.$('thumbHue').classList.add('focused');
+  private onHueBlur = () => this.$('thumbHue').classList.remove('focused');
+  private onTriFocus = () => this.$('thumbTri').classList.add('focused');
+  private onTriBlur = () => this.$('thumbTri').classList.remove('focused');
+  private onHueKeyDown = (e: Event) => {
+    let stop = true;
+    const code = (e as KeyboardEvent).code;
+    switch (code) {
+      case 'ArrowUp':
+      case 'ArrowRight': {
+        this._hsla[0] = (this._hsla[0] + 1) % 360;
+        this.updateColor(true);
+        break;
+      }
+      case 'ArrowLeft':
+      case 'ArrowDown': {
+        this._hsla[0] = ((this._hsla[0] || 360) - 1) % 360;
+        this.updateColor(true);
+        break;
+      }
+      case 'Escape':
+        this.$('hueInput').blur();
+        break;
+      default:
+        stop = false;
+        break;
+    }
+    if (stop) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+  private onTriKeyDown = (e: Event) => {
+    let stop = true;
+    if (this.triC) {
+      const code = (e as KeyboardEvent).code;
+      switch (code) {
+        case 'ArrowRight':
+          this.triC.moveBy(5, 0);
+          break;
+        case 'ArrowLeft':
+          this.triC.moveBy(-5, 0);
+          break;
+        case 'ArrowUp':
+          this.triC.moveBy(0, -5);
+          break;
+        case 'ArrowDown':
+          this.triC.moveBy(0, 5);
+          break;
+        case 'Escape':
+          this.$('triInput').blur();
+          break;
+        default:
+          stop = false;
+          break;
+      }
+    }
+    if (stop) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   connectedCallback() {
     this.renderWheel();
     const wheel = this.$<HTMLCanvasElement>('wheel');
     const { width, height } = wheel;
     const min = Math.min(width, height);
-    const ro = (min / 2) - 2;
-    const ri = ro - DIAL_WIDTH;
+    const ro = (min / 2) - 2 + (DIAL_WIDTH / 2);
+    const ri = ro - (DIAL_WIDTH * 2.5);
     this.dialC = new ArcController(wheel, ri / min, ro / min, 0, 359.99);
     this.$add(wheel, 'p-input', this.handleDialInput);
 
     const disk = this.$<HTMLCanvasElement>('satcan');
     this.triC = new TriangleController(disk, [[0, 0], [0, 0], [0, 0]], [0.5, 0.5]);
     this.$add(disk, 'p-input', this.handleTriangleInput);
+
+    this.$add('hueInput', 'focus', this.onHueFocus);
+    this.$add('hueInput', 'blur', this.onHueBlur);
+    this.$add('hueInput', 'keydown', this.onHueKeyDown);
+
+    this.$add('triInput', 'focus', this.onTriFocus);
+    this.$add('triInput', 'blur', this.onTriBlur);
+    this.$add('triInput', 'keydown', this.onTriKeyDown);
 
     this.updateHueThumb();
     this.updateTriangleThumb();
@@ -101,6 +220,18 @@ export class CorelColorPicker extends BaseElement {
       this.triC.detach();
       this.triC = undefined;
     }
+
+    this.$add('hueInput', 'focus', this.onHueFocus);
+    this.$add('hueInput', 'blur', this.onHueBlur);
+    this.$add('hueInput', 'keydown', this.onHueKeyDown);
+
+    this.$add('triInput', 'focus', this.onTriFocus);
+    this.$add('triInput', 'blur', this.onTriBlur);
+    this.$add('triInput', 'keydown', this.onTriKeyDown);
+
+    this.$remove('satcan', 'p-input', this.handleTriangleInput);
+    this.$remove('wheel', 'p-input', this.handleDialInput);
+
     super.disconnectedCallback();
   }
 
@@ -214,13 +345,15 @@ export class CorelColorPicker extends BaseElement {
   private updateHueThumb() {
     const t = this.$('thumbHue');
     if (t) {
-      const hue = this._hsla[0];
+      const [hue] = this._hsla;
       const wheel = this.$<HTMLCanvasElement>('wheel');
       const { width, height } = wheel;
       const radius = (Math.min(width, height) / 2) - (DIAL_WIDTH / 2) - 2.5;
       const x = (width / 2) + (radius * Math.cos(degToRad(hue)));
       const y = (height / 2) + (radius * Math.sin(degToRad(hue)));
       t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      t.style.setProperty('--ecp-i-thumb-color', hslString(this._hsla));
+      t.style.setProperty('--ecp-i-thumb-shadow-color', hslString([hue, 100, 60, 1]));
     }
   }
 
@@ -230,7 +363,9 @@ export class CorelColorPicker extends BaseElement {
       const position = this.triC.position;
       const [x, y] = [INNER_WIDTH * position[0], INNER_WIDTH * position[1]];
       t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      t.style.background = hslString(this._hsla);
+      t.style.setProperty('--ecp-i-thumb-color', hslString(this._hsla));
+      const [h] = this._hsla;
+      t.style.setProperty('--ecp-i-thumb-shadow-color', hslString([h, 100, 60, 1]));
     }
   }
 
@@ -249,6 +384,7 @@ export class CorelColorPicker extends BaseElement {
   }
 
   private handleDialInput = (event: Event) => {
+    this.$('hueInput').focus();
     const hue = (event as CustomEvent).detail.angle;
     if (this._hsla[0] !== hue) {
       const oldHue = this._hsla[0];
@@ -259,11 +395,11 @@ export class CorelColorPicker extends BaseElement {
       this.updateColor(false);
       this._fire();
     }
-  }
+  };
 
   private handleTriangleInput = (event: Event) => {
     event.stopPropagation();
-
+    this.$('triInput').focus();
     const position = (event as CustomEvent).detail.position;
     let [x, y] = [INNER_WIDTH * position[0], INNER_WIDTH * position[1]];
     [x, y] = rotate(x, y, INNER_WIDTH / 2, INNER_WIDTH / 2, degToRad(-this._hsla[0] + 270));
@@ -283,7 +419,7 @@ export class CorelColorPicker extends BaseElement {
     this._hsla[2] = lumin;
     this.updateColor(false);
     this._fire();
-  }
+  };
 
   private _fire() {
     this.fire('change');

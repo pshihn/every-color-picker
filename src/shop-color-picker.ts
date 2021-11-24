@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 import { BaseElement } from './base-element.js';
 import { Color, hslaString, hslString, hsvToHsl, hsvToRgb, rgbaToHex, rgbString, rgbToHsv, parseColor, hslToHsv } from './colors.js';
 import { LABEL_STYLE, STYLES, SHADOW2, SHADOW3 } from './common.js';
@@ -63,15 +65,50 @@ export class ShopColorPicker extends BaseElement {
       }
       #thumb {
         position: absolute;
+        width: 40px;
+        height: 40px;
+        top: -20px;
+        left: -20px;
+        padding: 10px;
+        border-radius: 50%;
+        cursor: pointer;
+        overflow: hidden;
+      }
+      .knob {
+        position: relative;
         width: 20px;
         height: 20px;
-        border-radius: 50%;
+        border: 2px solid #fff;
         box-shadow: ${SHADOW2};
-        background: transparent;
-        border: 2px solid #ffffff;
-        top: -10px;
-        left: -10px;
+        border-radius: 50%;
+        background: var(--ecp-i-thumb-color);
+      }
+      #thumb::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        opacity: 0.2;
+        background: var(--ecp-i-thumb-shadow-color);
+        pointer-events: none;
+        transform: scale(0);
+        transition: transform 0.18s ease;
+      }
+      #thumb.focused::before {
+        transform: scale(1);
+      }
+      #thumb input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
         cursor: pointer;
+        opacity: 0;
       }
       #inputGrid {
         grid-gap: 6px;
@@ -141,7 +178,10 @@ export class ShopColorPicker extends BaseElement {
       <div id="base">
         <div id="base1"></div>
         <div id="base2">
-          <div id="thumb"></div>
+          <div id="thumb">
+            <div class="knob"></div>
+            <input id="thumbInput" tabindex="1">
+          </div>
         </div>
       </div>
       <div id="sliderPanel">
@@ -177,6 +217,39 @@ export class ShopColorPicker extends BaseElement {
     `;
   }
 
+  private onThumbFocus = () => this.$('thumb').classList.add('focused');
+  private onThumbBlur = () => this.$('thumb').classList.remove('focused');
+  private onThumbKeyDown = (e: Event) => {
+    let stop = true;
+    if (this.rc) {
+      const code = (e as KeyboardEvent).code;
+      switch (code) {
+        case 'ArrowRight':
+          this.rc.moveBy(5, 0);
+          break;
+        case 'ArrowLeft':
+          this.rc.moveBy(-5, 0);
+          break;
+        case 'ArrowUp':
+          this.rc.moveBy(0, -5);
+          break;
+        case 'ArrowDown':
+          this.rc.moveBy(0, 5);
+          break;
+        case 'Escape':
+          this.$('triInput').blur();
+          break;
+        default:
+          stop = false;
+          break;
+      }
+    }
+    if (stop) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   connectedCallback() {
     this.refreshCompactMode();
 
@@ -187,6 +260,10 @@ export class ShopColorPicker extends BaseElement {
     const slider = this.$('slider');
     this.gc = new GradientController(slider, this.mode);
     this.$add(slider, 'range', this.onGradientChange);
+
+    this.$add('thumbInput', 'focus', this.onThumbFocus);
+    this.$add('thumbInput', 'blur', this.onThumbBlur);
+    this.$add('thumbInput', 'keydown', this.onThumbKeyDown);
 
     const radios = this.root.querySelectorAll('input[type=radio]');
     radios.forEach((r) => r.addEventListener('change', (e) => {
@@ -209,6 +286,10 @@ export class ShopColorPicker extends BaseElement {
       this.gc.detach();
       this.gc = undefined;
     }
+    this.$remove('thumbInput', 'focus', this.onThumbFocus);
+    this.$remove('thumbInput', 'blur', this.onThumbBlur);
+    this.$remove('thumbInput', 'keydown', this.onThumbKeyDown);
+
     super.disconnectedCallback();
   }
 
@@ -324,6 +405,7 @@ export class ShopColorPicker extends BaseElement {
   }
 
   private onPlanarInput = () => {
+    this.$('thumbInput').focus();
     const [px, py] = this.rc!.position;
     let hsvChanged = false;
     switch (this.mode) {
@@ -362,7 +444,7 @@ export class ShopColorPicker extends BaseElement {
     }
     this.updateColor(false);
     this._fire();
-  }
+  };
 
   private onGradientChange = () => {
     if (this.gc) {
@@ -399,7 +481,7 @@ export class ShopColorPicker extends BaseElement {
       this.updateColor(true);
       this._fire();
     }
-  }
+  };
 
   private updateColor(renderCanvas: boolean) {
     this._hex = rgbaToHex(...this._rgb);
@@ -536,7 +618,9 @@ export class ShopColorPicker extends BaseElement {
       const size = this._cm ? 240 : 280;
       const [x, y] = [size * p[0], size * p[1]];
       t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      t.style.background = this._hex;
+      t.style.setProperty('--ecp-i-thumb-color', this._hex);
+      const [h] = this._hsv;
+      t.style.setProperty('--ecp-i-thumb-shadow-color', hslString([h, 100, 60, 1]));
     }
   }
 

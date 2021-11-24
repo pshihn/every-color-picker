@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 import { BaseElement } from './base-element.js';
 import { ALPHA_BG, STYLES, SHADOW2, SHADOW3, LABEL_STYLE } from './common.js';
 import { HueController } from './hue-controller.js';
@@ -37,13 +39,39 @@ export class DinoColorPicker extends BaseElement {
       }
       #thumb {
         position: absolute;
-        width: var(--thumb-size, 15px);
-        height: var(--thumb-size, 15px);
+        width: 40px;
+        height: 40px;
+        padding: 10px;
         border-radius: 50%;
-        box-shadow: ${SHADOW2};
-        border: var(--thumb-border, 2px solid #ffffff);
         transform: translate3d(-50%, -50%, 0);
         cursor: pointer;
+        overflow: hidden;
+      }
+      .knob {
+        position: relative;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #fff;
+        box-shadow: ${SHADOW2};
+        border-radius: 50%;
+        background: var(--ecp-i-thumb-color);
+      }
+      #thumb::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        opacity: 0.2;
+        background: var(--ecp-i-thumb-shadow-color);
+        pointer-events: none;
+        transform: scale(0);
+        transition: transform 0.18s ease;
+      }
+      #thumb.focused::before {
+        transform: scale(1);
       }
       #base1,
       #base2 {
@@ -140,6 +168,9 @@ export class DinoColorPicker extends BaseElement {
         pointer-events: none;
         background: currentcolor;
       }
+      #colorTypeToggle:focus::before {
+        opacity: 0.2;
+      }
       svg {
         pointer-events: none;
         display: block;
@@ -156,17 +187,33 @@ export class DinoColorPicker extends BaseElement {
       label {
         text-align: center;
       }
+      #thumb input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+        cursor: pointer;
+        opacity: 0;
+      }
 
       @media(hover:hover) {
         #colorTypeToggle:hover::before {
           opacity: 0.1;
+        }
+        #colorTypeToggle:focus:hover::before {
+          opacity: 0.2;
         }
       }
     </style>
     <div id="base">
       <div id="base1"></div>
       <div id="base2">
-        <div id="thumb"></div>
+        <div id="thumb">
+          <div class="knob"></div>
+          <input id="thumbInput" tabindex="1">
+        </div>
       </div>
       
     </div>
@@ -236,6 +283,39 @@ export class DinoColorPicker extends BaseElement {
     `;
   }
 
+  private onThumbFocus = () => this.$('thumb').classList.add('focused');
+  private onThumbBlur = () => this.$('thumb').classList.remove('focused');
+  private onThumbKeyDown = (e: Event) => {
+    let stop = true;
+    if (this.rc) {
+      const code = (e as KeyboardEvent).code;
+      switch (code) {
+        case 'ArrowRight':
+          this.rc.moveBy(5, 0);
+          break;
+        case 'ArrowLeft':
+          this.rc.moveBy(-5, 0);
+          break;
+        case 'ArrowUp':
+          this.rc.moveBy(0, -5);
+          break;
+        case 'ArrowDown':
+          this.rc.moveBy(0, 5);
+          break;
+        case 'Escape':
+          this.$('triInput').blur();
+          break;
+        default:
+          stop = false;
+          break;
+      }
+    }
+    if (stop) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   connectedCallback() {
     const base = this.$('base2');
     this.rc = new RectangleController(base, [0.5, 0.5]);
@@ -253,6 +333,10 @@ export class DinoColorPicker extends BaseElement {
     this.$add('hsla', 'change', this.onHSLInput);
     this.$add('hex', 'change', this.onHexInput);
     this.$add('colorTypeToggle', 'click', this.onColorTypeToggle);
+
+    this.$add('thumbInput', 'focus', this.onThumbFocus);
+    this.$add('thumbInput', 'blur', this.onThumbBlur);
+    this.$add('thumbInput', 'keydown', this.onThumbKeyDown);
 
     this.updateColorType();
     this.updateThumb();
@@ -285,6 +369,11 @@ export class DinoColorPicker extends BaseElement {
       this.$remove('huePanel', 'range', this.onHueChange);
       this.$remove('alphaPanel', 'range', this.onAlphaChange);
     }
+
+    this.$remove('thumbInput', 'focus', this.onThumbFocus);
+    this.$remove('thumbInput', 'blur', this.onThumbBlur);
+    this.$remove('thumbInput', 'keydown', this.onThumbKeyDown);
+
     super.disconnectedCallback();
   }
 
@@ -337,7 +426,9 @@ export class DinoColorPicker extends BaseElement {
       const p = this.rc.position;
       t.style.left = `${p[0] * 100}%`;
       t.style.top = `${p[1] * 100}%`;
-      t.style.background = hslString(this._hsla);
+      t.style.setProperty('--ecp-i-thumb-color', hslString(this._hsla));
+      const [h] = this._hsla;
+      t.style.setProperty('--ecp-i-thumb-shadow-color', hslString([h, 100, 60, 1]));
     }
   }
 
@@ -355,6 +446,7 @@ export class DinoColorPicker extends BaseElement {
   }
 
   private handlePlaneInput = () => {
+    this.$('thumbInput').focus();
     const [px, py] = this.rc!.position;
     const s = Math.max(0, Math.min(100, Math.round(px * 100)));
     const l = Math.max(0, Math.min(100, Math.round(50 * (2 - px - py))));
@@ -363,7 +455,7 @@ export class DinoColorPicker extends BaseElement {
       this._hsla[2] = l;
       this.onHSLChange();
     }
-  }
+  };
 
   private onRGBinput = (event: Event) => {
     event.stopPropagation();
@@ -379,12 +471,12 @@ export class DinoColorPicker extends BaseElement {
     this._hex = rgbaToHex(r, g, b, alpha);
     this.updateColor();
     this._fire();
-  }
+  };
 
   private onHexInput = (event: Event) => {
     event.stopPropagation();
     this.onHexChange(this.$<HTMLInputElement>('inputHex').value.trim());
-  }
+  };
 
   private onHSLInput = (event: Event) => {
     event.stopPropagation();
@@ -393,12 +485,12 @@ export class DinoColorPicker extends BaseElement {
     this._hsla[2] = +this.$<HTMLInputElement>('inputL').value;
     this._hsla[3] = +this.$<HTMLInputElement>('inputA2').value;
     this.onHSLChange();
-  }
+  };
 
-  private onColorTypeToggle = (_event: Event) => {
+  private onColorTypeToggle = () => {
     this.colorType = (this.colorType + 1) % COLOR_TYPES.length;
     this.updateColorType();
-  }
+  };
 
   private onHueChange = (event: Event) => {
     let [hue, sat, lumin, alpha] = this._hsla;
@@ -415,12 +507,12 @@ export class DinoColorPicker extends BaseElement {
       this._hsla = [hue, sat, lumin, alpha];
       this.onHSLChange();
     }
-  }
+  };
 
   private onAlphaChange = (event: Event) => {
     this._hsla[3] = (event as CustomEvent).detail.value;
     this.onHSLChange();
-  }
+  };
 
   private onHSLChange() {
     const [hue, sat, lumin, alpha] = this._hsla;
