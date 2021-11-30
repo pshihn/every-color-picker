@@ -99,20 +99,21 @@ export class CorelColorPicker extends BaseElement {
         border: none;
         cursor: pointer;
         opacity: 0;
+        font-size: 16px;
       }
     </style>
     <div id="base">
       <canvas id="wheel" width="${WIDTH}" height="${WIDTH}"></canvas>
       <div id="thumbHue" class="thumb">
         <div class="knob"></div>
-        <input id="hueInput">
+        <input readonly id="hueInput">
       </div>
       <div id="tripanel">
         <div style="position: relative;">
           <canvas id="satcan" width="${INNER_WIDTH}" height="${INNER_WIDTH}"></canvas>
           <div id="thumbTri" class="thumb">
             <div class="knob"></div>
-            <input id="triInput">
+            <input readonly id="triInput">
           </div>
         </div>
       </div>

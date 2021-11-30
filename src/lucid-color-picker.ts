@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 import { BaseElement } from './base-element.js';
 import { Color, hslaString, hslString, hslToHsv, hsvToHsl, hsvToRgb, parseColor, rgbaToHex } from './colors.js';
 import { STYLES, SHADOW2, ALPHA_BG } from './common.js';

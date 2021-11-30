@@ -3,12 +3,12 @@ const { create } = require('domain');
 const fs = require('fs').promises;
 
 const INPUTS = [
-  { name: 'dino-color-picker', cl: 'DinoColorPicker', v: '0.1.1' },
-  { name: 'corel-color-picker', cl: 'CorelColorPicker', v: '0.1.0' },
-  { name: 'slider-color-picker', cl: 'SliderColorPicker', v: '0.1.0' },
-  { name: 'disk-color-picker', cl: 'DiskColorPicker', v: '0.1.0' },
-  { name: 'shop-color-picker', cl: 'ShopColorPicker', v: '0.1.0' },
-  { name: 'atom-color-picker', cl: 'AtomColorPicker', v: '0.1.0' },
+  { name: 'dino-color-picker', cl: 'DinoColorPicker', v: '0.2.3' },
+  { name: 'corel-color-picker', cl: 'CorelColorPicker', v: '0.2.3' },
+  { name: 'slider-color-picker', cl: 'SliderColorPicker', v: '0.2.3' },
+  { name: 'disk-color-picker', cl: 'DiskColorPicker', v: '0.2.3' },
+  { name: 'shop-color-picker', cl: 'ShopColorPicker', v: '0.2.3' },
+  { name: 'atom-color-picker', cl: 'AtomColorPicker', v: '0.2.3' },
   { name: 'lucid-color-picker', cl: 'LucidColorPicker', v: '0.1.0' }
 ];
 

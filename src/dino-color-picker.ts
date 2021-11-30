@@ -196,6 +196,7 @@ export class DinoColorPicker extends BaseElement {
         border: none;
         cursor: pointer;
         opacity: 0;
+        font-size: 16px;
       }
 
       @media(hover:hover) {
@@ -212,7 +213,7 @@ export class DinoColorPicker extends BaseElement {
       <div id="base2">
         <div id="thumb">
           <div class="knob"></div>
-          <input id="thumbInput" tabindex="1">
+          <input readonly id="thumbInput" tabindex="1">
         </div>
       </div>
       

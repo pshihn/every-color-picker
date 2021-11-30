@@ -106,20 +106,21 @@ export class DiskColorPicker extends BaseElement {
         border: none;
         cursor: pointer;
         opacity: 0;
+        font-size: 16px;
       }
     </style>
     <div id="base">
       <canvas id="wheel" width="${WIDTH}" height="${WIDTH}"></canvas>
       <div id="wheelThumb" class="thumb">
         <div class="knob"></div>
-        <input id="wheelThumbInput" tabindex="2">
+        <input readonly id="wheelThumbInput" tabindex="2">
       </div>
       <div id="diskPanel">
         <div id="diskTarget">
           <canvas id="disk" width="${INNER_WIDTH}" height="${INNER_WIDTH}"></canvas>
           <div id="diskThumb" class="thumb">
             <div class="knob"></div>
-            <input id="diskThumbInput" tabindex="1">
+            <input readonly id="diskThumbInput" tabindex="1">
           </div>
         </div>
       </div>
