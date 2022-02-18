@@ -142,6 +142,7 @@ export class DiskColorPicker extends BaseElement {
         if (l > 0) {
           this._hsla[2] = Math.ceil(l) - 1;
           this.updateColor();
+          this._fire();
         }
         break;
       }
@@ -150,6 +151,7 @@ export class DiskColorPicker extends BaseElement {
         if (l < 100) {
           this._hsla[2] = Math.floor(l) + 1;
           this.updateColor();
+          this._fire();
         }
         break;
       }
@@ -157,12 +159,14 @@ export class DiskColorPicker extends BaseElement {
         if (l !== 0) {
           this._hsla[2] = 0;
           this.updateColor();
+          this._fire();
         }
         break;
       case 'Home':
         if (l !== 100) {
           this._hsla[2] = 100;
           this.updateColor();
+          this._fire();
         }
         break;
       case 'Escape':
